@@ -1,0 +1,17 @@
+{
+    "name": "gridcp/promox-api-client",
+    "description": "Client for Api Promox",
+    "type": "library",
+    "license": "mit",
+    "autoload": {
+        "psr-4": {
+            "Gridcp\\PromoxApiClient\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "GridCP Team"
+        }
+    ],
+    "require": {}
+}
