@@ -1,11 +1,13 @@
 version: '3.4'
 services: 
 
-  
    api:
         image: 'ghcr.io/ginernet-devs/docker-php-8.5.2:main'
-        container_name: 'gridcp-proxmox-api'
+        container_name: 'ginernet-proxmox-api'
         ports:
              - "80:80"
         volumes:
             - .:/var/www:cached
+            - vendor:/var/www/vendor
+volumes:
+  vendor:

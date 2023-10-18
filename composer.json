@@ -8,10 +8,21 @@
             "Gridcp\\PromoxApiClient\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
-            "name": "GridCP Team"
+            "name": "Ginnernet Team"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=8.0.0",
+        "lib-curl": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
 }
