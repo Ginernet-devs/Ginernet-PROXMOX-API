@@ -1,12 +1,15 @@
 <?php
 
+use Symfony\Component\Dotenv\Dotenv;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+const DIR_VENDOR = __DIR__ . '/../vendor/';
 
-if (file_exists(dirname(__DIR__) . '/config/bootstrap.php')) {
-    require dirname(__DIR__) . '/config/bootstrap.php';
+if (file_exists(DIR_VENDOR . 'autoload.php')) {
+    require_once(DIR_VENDOR . 'autoload.php');
+}else{
+    var_dump("ERROR");
 }
 
-if ($_SERVER['APP_DEBUG']) {
-    umask(0000);
-}
+$dotenv = new Dotenv();
+$file = __DIR__. '/.env.test';
+$dotenv->load($file);
