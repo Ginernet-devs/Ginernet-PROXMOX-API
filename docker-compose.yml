@@ -8,6 +8,3 @@ services:
              - "80:80"
         volumes:
             - .:/var/www:cached
-            - vendor:/var/www/vendor
-volumes:
-  vendor:

@@ -21,7 +21,8 @@
     "require": {
         "php": ">=8.0.0",
         "lib-curl": "*",
-        "symfony/dotenv": "^6.3"
+        "symfony/dotenv": "^6.3",
+        "guzzlehttp/guzzle": "^7.8"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"

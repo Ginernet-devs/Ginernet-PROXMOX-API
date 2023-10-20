@@ -1,1 +1,1 @@
-{"version":1,"defects":{"Tests\\GClientTest::testLoginCLient":4,"GClientTest::testLoginCLient":4},"times":{"Tests\\GClientTest::testLoginCLient":0.195,"GClientTest::testLoginCLient":0.184}}
+{"version":1,"defects":{"Tests\\GClientTest::testLoginCLient":4,"GClientTest::testLoginCLient":4},"times":{"Tests\\GClientTest::testLoginCLient":1.016,"GClientTest::testLoginCLient":0.184}}
