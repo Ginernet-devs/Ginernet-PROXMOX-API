@@ -6,6 +6,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Response;
+use PromoxApiClient\Auth\Domain\Exceptions\AuthFailedException;
+use PromoxApiClient\Auth\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
 
 final class Login
@@ -35,7 +37,7 @@ final class Login
     {
       $client = new Client([$this->hostname]);
       try{
-        $response = $client->request('POST',$this->hostname.":".$this->port."/api2/json/access/ticket",[
+        $response = $client->request('POST',$this->hostname.":".$this->port."/api2/json/access/ticket",['https_errors'=>false,
             'verify' => false,
             'headers' => $this->defaultHeaders,
             'json'=>['username'=>$this->username, 'password'=>$this->password,'realm'=>$this->realm]]);
@@ -43,9 +45,10 @@ final class Login
              $cookie =  $this->getCookies($data['ticket']);
              return new LoginResponse($data['CSRFPreventionToken'],$cookie,$data['ticket']);
         }catch (GuzzleException $ex){
-            print_r($ex->getMessage());
-            return  null;
+            if ($ex->getCode() === 401) throw new AuthFailedException();
+            if ($ex->getCode() === 0) throw new HostUnreachableException();
       }
+      return null;
     }
     private function  getCookies(String $ticket):CookieJar
     {

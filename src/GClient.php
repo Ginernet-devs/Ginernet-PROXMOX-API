@@ -3,6 +3,8 @@ declare(strict_types=1);
 namespace PromoxApiClient;
 use GuzzleHttp\Cookie\CookieJar;
 use PromoxApiClient\Auth\App\Service\Login;
+use PromoxApiClient\Auth\Domain\Exceptions\AuthFailedException;
+use PromoxApiClient\Auth\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
 
 class GClient
@@ -23,9 +25,15 @@ class GClient
         $this->realm = $realm;
     }
 
-    public function login():LoginResponse{
-        $auth = new Login($this->hostname, $this->username, $this->password, $this->realm, $this->port);
-        return $auth();
+    public function login():LoginResponse|AuthFailedException|HostUnreachableException{
+       try {
+           $auth = new Login($this->hostname, $this->username, $this->password, $this->realm, $this->port);
+           return $auth();
+       }catch(AuthFailedException $ex){
+           return new AuthFailedException();
+       }catch (HostUnreachableException $ex){
+           return new HostUnreachableException();
+       }
     }
 
 }
