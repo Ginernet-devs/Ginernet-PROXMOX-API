@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 namespace Tests;
-use PromoxApiClient\Auth\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Auth\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
-use PromoxApiClient\GClient;
 use PHPUnit\Framework\TestCase;
+use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
+use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
+use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
+use PromoxApiClient\GClient;
 
 class GClientTest extends  TestCase
 {
@@ -44,5 +44,14 @@ class GClientTest extends  TestCase
         $client = new GClient('bbbb',$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
         $result = $client->login();
         $this->assertInstanceOf(HostUnreachableException::class, $result);
+    }
+
+
+    public function testGetNodesOK():void
+    {
+        $client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
+        $auth = $client->login();
+        $result = $client->GetNodes($auth->getCookies(),$_ENV['HOST'],8006);
+        $this->assertCount(1,$result);
     }
 }
