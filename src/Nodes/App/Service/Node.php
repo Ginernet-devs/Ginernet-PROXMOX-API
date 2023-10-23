@@ -4,8 +4,8 @@ namespace PromoxApiClient\Nodes\App\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use PromoxApiClient\Commons\Application\Helpers\GFunctions;
 use PromoxApiClient\Commons\Domain\Models\Connection;
-use PromoxApiClient\Commons\GFunctions;
 
 final class Node
 {

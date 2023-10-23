@@ -4,9 +4,9 @@ namespace PromoxApiClient\Commons\infrastructure;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use PromoxApiClient\Commons\Application\Helpers\GFunctions;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\Commons\Domain\Models\Connection;
-use PromoxApiClient\Commons\GFunctions;
 
 abstract class GClientBase
 {

@@ -4,10 +4,10 @@ namespace PromoxApiClient\Auth\App\Service;
 
 use GuzzleHttp\Exception\GuzzleException;
 use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
+use PromoxApiClient\Commons\Application\Helpers\GFunctions;
 use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\Commons\Domain\Models\Connection;
-use PromoxApiClient\Commons\GFunctions;
 use PromoxApiClient\Commons\infrastructure\GClientBase;
 
 final class Login extends GClientBase
