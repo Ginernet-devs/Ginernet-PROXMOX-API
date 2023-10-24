@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Commons\Domain\Models;
+namespace PromoxApiClient\Commons\Domain\Entities;
 
 final class Connection
 {

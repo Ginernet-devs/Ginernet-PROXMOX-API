@@ -4,16 +4,17 @@ namespace PromoxApiClient;
 use GuzzleHttp\Cookie\CookieJar;
 use PromoxApiClient\Auth\App\Service\Login;
 use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
+use PromoxApiClient\Commons\Domain\Entities\Connection;
+use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
 use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Commons\Domain\Models\Connection;
 use PromoxApiClient\Nodes\App\Service\Node;
 
 class GClient
 {
     private Connection $connection;
-       private string $CSRFPreventionToken;
-    private CookieJar $cookie;
+    private string $CSRFPreventionToken;
+    private CookiesPVE $cookiesPVE;
 
    public function __construct($hostname, $username, $password, $realm, $port = 8006)
    {
@@ -22,8 +23,10 @@ class GClient
 
     public function login():LoginResponse|AuthFailedException|HostUnreachableException{
        try {
-           $auth = new Login($this->connection);
-           return $auth();
+           $auth = new Login($this->connection, null);
+           $result= $auth();
+           $this->cookiesPVE= new CookiesPVE($result->getCSRFPreventionToken(),$result->getCookies(),$result->getTicket());
+           return $result;
        }catch(AuthFailedException $ex){
            return new AuthFailedException();
        }catch (HostUnreachableException $ex){
@@ -31,9 +34,9 @@ class GClient
        }
     }
 
-    public  function GetNodes(CookieJar $cookieJar):array
+    public  function GetNodes():array
     {
-       $nodes= new Node($cookieJar , $this->connection);
+       $nodes= new Node($this->connection, $this->cookiesPVE);
         return $nodes();
     }
 }

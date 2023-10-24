@@ -5,8 +5,11 @@ namespace PromoxApiClient\Commons\infrastructure;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use PromoxApiClient\Commons\Application\Helpers\GFunctions;
+use PromoxApiClient\Commons\Domain\Entities\Connection;
+use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
+use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Commons\Domain\Models\Connection;
+use PromoxApiClient\Commons\Domain\Models\CoockiesPVE;
 
 abstract class GClientBase
 {
@@ -14,20 +17,35 @@ abstract class GClientBase
     use GFunctions;
     private Client $client;
     private Connection $connection;
+    private CoockiesPVE $cookies;
 
     private array $defaultHeaders = [
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
     ];
-    public function __construct(Connection $connection)
+    public function __construct(Connection $connection, CoockiesPVE $cookies)
     {
-
+        $this->cookies= $cookies;
         $this->connection = $connection;
         $this->client = new Client([$connection->getHost()]);
     }
-    protected function Get():?array
+    protected function Get(string $request, array $params=[]):?array
     {
-       return  null;
+       try{
+           $result= $this->client->request('GET', $this->connection->getUri().$request,[
+              'https_errors' => false,
+              'verify'=> false,
+               'headers'=>array_merge($this->defaultHeaders,['CSRFPreventionToken'=>$this->cookies->getCSRFPreventionToken()]),
+               'query' =>$params,
+               'exceptions'=>false,
+               'cookies'=>$this->cookies->getCookies(),
+           ]);
+           return $this->decodeBody($result);
+       }catch (GuzzleException $ex){
+           if ($ex->getCode() === 0) throw new HostUnreachableException();
+           if ($ex->getCode() === 401) throw new AuthFailedException();
+       }
+       return null;
 
     }
 
@@ -42,6 +60,7 @@ abstract class GClientBase
            return $this->decodeBody($result);
         }catch (GuzzleException $ex){
            if ($ex->getCode() === 0) throw new HostUnreachableException();
+           if ($ex->getCode() === 401) throw new AuthFailedException();
         }
       return null;
     }

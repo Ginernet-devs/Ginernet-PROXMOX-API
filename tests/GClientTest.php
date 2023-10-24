@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 namespace Tests;
+
 use PHPUnit\Framework\TestCase;
 use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
 use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
@@ -10,12 +11,17 @@ use PromoxApiClient\GClient;
 class GClientTest extends  TestCase
 {
 
+    private LoginResponse $auth;
+    private GClient $client;
+
+    public function setUp():void{
+        $this->client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
+        $this->auth = $this->client->login();
+    }
 
     public function testLoginCLientOk():void
     {
-        $client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
-        $result = $client->login();
-        $this->assertInstanceOf(LoginResponse::class, $result);
+        $this->assertInstanceOf(LoginResponse::class, $this->auth);
     }
 
     public function testLoginClientUserNameKO():void
@@ -49,9 +55,7 @@ class GClientTest extends  TestCase
 
     public function testGetNodesOK():void
     {
-        $client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
-        $auth = $client->login();
-        $result = $client->GetNodes($auth->getCookies(),$_ENV['HOST'],8006);
+        $result = $this->client->GetNodes($this->auth->getCookies());
         $this->assertCount(1,$result);
     }
 }
