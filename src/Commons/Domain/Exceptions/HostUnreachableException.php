@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Auth\Domain\Exceptions;
+namespace PromoxApiClient\Commons\Domain\Exceptions;
 
 final class HostUnreachableException extends \Error
 {

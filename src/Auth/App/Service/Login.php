@@ -3,59 +3,59 @@ declare(strict_types=1);
 namespace PromoxApiClient\Auth\App\Service;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Psr7\Response;
-use PromoxApiClient\Auth\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Auth\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
+use PromoxApiClient\Commons\Application\Helpers\GFunctions;
+use PromoxApiClient\Commons\Domain\Entities\Connection;
+use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
+use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
+use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
+use PromoxApiClient\Commons\infrastructure\GClientBase;
 
 final class Login
 {
-    private string $hostname;
-    private int $port;
-    private string $username;
-    private string $password;
-    private string $realm;
-    private String $ticket;
+    use GFunctions;
+
+    private string $ticket;
+
+    private Connection $connection;
+    private Client $client;
 
     private array $defaultHeaders = [
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
     ];
 
-    public function __construct($hostname, $username, $password, $realm, $port)
+    public function __construct(Connection $connection)
     {
-        $this->hostname = $hostname;
-        $this->port = $port;
-        $this->username = $username;
-        $this->password = $password;
-        $this->realm = $realm;
+        $this->connection = $connection;
+        $this->client = new Client([$connection->getHost()]);
     }
 
-    public function __invoke():?LoginResponse
+    public function __invoke(): ?LoginResponse
+
     {
-      $client = new Client([$this->hostname]);
-      try{
-        $response = $client->request('POST',$this->hostname.":".$this->port."/api2/json/access/ticket",['https_errors'=>false,
-            'verify' => false,
-            'headers' => $this->defaultHeaders,
-            'json'=>['username'=>$this->username, 'password'=>$this->password,'realm'=>$this->realm]]);
-             $data = $this->decodeBody($response);
-             $cookie =  $this->getCookies($data['ticket']);
-             return new LoginResponse($data['CSRFPreventionToken'],$cookie,$data['ticket']);
-        }catch (GuzzleException $ex){
+        try {
+            $body=[
+                'username' => $this->connection->getUsername(),
+                'password' => $this->connection->getPassword(),
+                'realm' => $this->connection->getRealm()
+            ];
+
+            $result=  $this->client->request("POST", $this->connection->getUri() .'access/ticket' , [
+                'https_errors'=>false,
+                'verify' => false,
+                'headers' => $this->defaultHeaders,
+                'json' => (count($body) > 0 ) ? $body : null]);
+           $response = $this->decodeBody($result);
+           $cookie = $this->getCookies($response['ticket'], $this->connection->getHost());
+           return new LoginResponse($response['CSRFPreventionToken'], $cookie, $response['ticket']);
+        } catch (GuzzleException $ex) {
             if ($ex->getCode() === 401) throw new AuthFailedException();
             if ($ex->getCode() === 0) throw new HostUnreachableException();
-      }
-      return null;
+        }
+        return null;
     }
-    private function  getCookies(String $ticket):CookieJar
-    {
-        return CookieJar::fromArray(
-            ['PVEAuthCookie' => $ticket],$this->hostname);
-    }
-    public function decodeBody(Response $data):array{
-        return json_decode($data->getBody()->getContents(), true)['data'];
-    }
+
+
 }
