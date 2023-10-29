@@ -1,3 +1,6 @@
 /vendor/
 .idea
+.env.*
+/tests/.env.test
+composer.lock
 
