@@ -7,6 +7,7 @@ use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
 use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\GClient;
+use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
 
 class GClientTest extends  TestCase
 {
@@ -19,7 +20,7 @@ class GClientTest extends  TestCase
         $this->auth = $this->client->login();
     }
 
-    public function testLoginCLientOk():void
+    public function testLoginClientOk():void
     {
         $this->assertInstanceOf(LoginResponse::class, $this->auth);
     }
@@ -56,6 +57,7 @@ class GClientTest extends  TestCase
     public function testGetNodesOK():void
     {
         $result = $this->client->GetNodes($this->auth->getCookies());
-        $this->assertCount(1,$result);
+        $this->assertInstanceOf(NodesResponse::class, $result);
     }
+
 }
