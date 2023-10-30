@@ -11,6 +11,9 @@ use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\Nodes\App\Service\GetNode;
 use PromoxApiClient\Nodes\App\Service\GetNodes;
 use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
+use PromoxApiClient\Storages\App\Service\GetStoragesFromNode;
+use PromoxApiClient\Storages\Domain\Exceptions\NodeNotFound;
+use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
 
 class GClient
 {
@@ -46,6 +49,20 @@ class GClient
             return new AuthFailedException();
         } catch (HostUnreachableException $ex) {
             return new HostUnreachableException();
+        }
+    }
+
+    public function GetStoragesFromNode(string $node):StoragesResponse |AuthFailedException|HostUnreachableException|NodeNotFound
+    {
+        try {
+            $storages = new GetStoragesFromNode($this->connection, $this->cookiesPVE);
+            return $storages($node);
+        }catch (AuthFailedException $ex) {
+            return new AuthFailedException();
+        }catch (HostUnreachableException $ex) {
+            return new HostUnreachableException();
+        }catch (NodeNotFound $ex){
+            return new NodeNotFound();
         }
     }
 
