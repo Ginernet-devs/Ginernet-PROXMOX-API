@@ -8,6 +8,8 @@ use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\GClient;
 use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
+use PromoxApiClient\Storages\Domain\Exceptions\NodeNotFound;
+use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
 
 class GClientTest extends  TestCase
 {
@@ -53,11 +55,24 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(HostUnreachableException::class, $result);
     }
 
-
     public function testGetNodesOK():void
     {
-        $result = $this->client->GetNodes($this->auth->getCookies());
+        $result = $this->client->GetNodes();
         $this->assertInstanceOf(NodesResponse::class, $result);
+    }
+
+    public function testGetStorageFromNodesOK():void
+    {
+        $result = $this->client->GetStoragesFromNode("ns1000");
+        $this->assertInstanceOf(StoragesResponse::class, $result);
+    }
+
+
+        public function testGetStorageFromNodesKO():void
+    {
+        $result = $this->client->GetStoragesFromNode("test");
+        $this->assertInstanceOf(NodeNotFound::class, $result);
+
     }
 
 }
