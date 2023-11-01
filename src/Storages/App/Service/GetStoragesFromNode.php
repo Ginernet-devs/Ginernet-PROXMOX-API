@@ -9,9 +9,7 @@ use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
 use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\Commons\infrastructure\GClientBase;
-use PromoxApiClient\Nodes\Domain\Responses\NodeResponse;
-use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
-use PromoxApiClient\Storages\Domain\Exceptions\NodeNotFound;
+use PromoxApiClient\Storages\Domain\Exceptions\StoragesNotFound;
 use PromoxApiClient\Storages\Domain\Responses\StorageResponse;
 use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
 
@@ -31,7 +29,7 @@ final class GetStoragesFromNode  extends GClientBase
     {
         try {
             $result = $this->Get("/nodes/".$node."/storage", []);
-            if (empty($result)) throw new NodeNotFound();
+            if (empty($result)) throw new StoragesNotFound();
             return  new StoragesResponse(...array_map($this->toResponse(), $result));
         }catch(GuzzleException $ex){
             if ($ex->getCode() === 401) throw new AuthFailedException();
@@ -43,16 +41,16 @@ final class GetStoragesFromNode  extends GClientBase
     public function toResponse():callable
     {
         return static fn($result): StorageResponse => new StorageResponse(
-           $result['type'],
-           $result['used'],
-           $result['avail'],
-           $result['total'],
-           $result['enabled']===1,
-           $result['storage'],
-           $result['used_fraction'],
-           explode(',',$result['content']),
-           $result['active']===1,
-           $result['shared']===1
+            (array_key_exists('type', $result))?$result['type']:"",
+            (array_key_exists('used', $result))?$result['used']:0,
+            (array_key_exists('avail', $result))?$result['avail']:0,
+            (array_key_exists('total', $result))?$result['total']:0,
+            (array_key_exists('enabled', $result)) && $result['enabled']===1,
+            (array_key_exists('storage', $result))?$result['storage']:"",
+            (array_key_exists("used_fraction", $result))?$result['used_fraction']:0.0,
+            (array_key_exists('content', $result))?explode(',',$result['content']):[],
+            array_key_exists('active', $result) && $result['active'] === 1,
+           array_key_exists('shared', $result) && $result['shared']===1
         );
     }
 }

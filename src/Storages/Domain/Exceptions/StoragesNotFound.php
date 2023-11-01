@@ -2,11 +2,11 @@
 declare(strict_types=1);
 namespace PromoxApiClient\Storages\Domain\Exceptions;
 
-final class NodeNotFound extends \Error
+final class StoragesNotFound extends \Error
 {
     public function __construct()
     {
-        parent::__construct("Node Not Found", 204);
+        parent::__construct("Storages Not Found", 204);
     }
 }
 
