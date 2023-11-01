@@ -7,8 +7,10 @@ use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
 use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
 use PromoxApiClient\GClient;
+use PromoxApiClient\Networks\Domain\Exceptions\NetworksNotFound;
+use PromoxApiClient\Networks\Domain\Responses\NetworksResponse;
 use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
-use PromoxApiClient\Storages\Domain\Exceptions\NodeNotFound;
+use PromoxApiClient\Storages\Domain\Exceptions\StoragesNotFound;
 use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
 
 class GClientTest extends  TestCase
@@ -61,18 +63,30 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(NodesResponse::class, $result);
     }
 
-    public function testGetStorageFromNodesOK():void
+    public function testGetStoragesFromNodeOK():void
     {
         $result = $this->client->GetStoragesFromNode("ns1000");
         $this->assertInstanceOf(StoragesResponse::class, $result);
     }
 
 
-        public function testGetStorageFromNodesKO():void
+        public function testGetStoragesFromNodeKO():void
     {
         $result = $this->client->GetStoragesFromNode("test");
-        $this->assertInstanceOf(NodeNotFound::class, $result);
+        $this->assertInstanceOf(StoragesNotFound::class, $result);
 
+    }
+
+    public  function testGetNeworkFromNodeOK():void
+    {
+        $result = $this->client->GetNetworksFromNode("ns1000");
+        $this->assertInstanceOf(NetworksResponse::class, $result);
+    }
+
+    public  function testGetNeworkFromNodeKO():void
+    {
+        $result = $this->client->GetNetworksFromNode("test");
+        $this->assertInstanceOf(NetworksNotFound::class, $result);
     }
 
 }

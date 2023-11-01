@@ -8,11 +8,14 @@ use PromoxApiClient\Commons\Domain\Entities\Connection;
 use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
 use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
 use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
+use PromoxApiClient\Networks\App\Service\GetNetworksFromNode;
+use PromoxApiClient\Networks\Domain\Exceptions\NetworksNotFound;
+use PromoxApiClient\Networks\Domain\Responses\NetworksResponse;
 use PromoxApiClient\Nodes\App\Service\GetNode;
 use PromoxApiClient\Nodes\App\Service\GetNodes;
 use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
 use PromoxApiClient\Storages\App\Service\GetStoragesFromNode;
-use PromoxApiClient\Storages\Domain\Exceptions\NodeNotFound;
+use PromoxApiClient\Storages\Domain\Exceptions\StoragesNotFound;
 use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
 
 class GClient
@@ -52,7 +55,7 @@ class GClient
         }
     }
 
-    public function GetStoragesFromNode(string $node):StoragesResponse |AuthFailedException|HostUnreachableException|NodeNotFound
+    public function GetStoragesFromNode(string $node):StoragesResponse |AuthFailedException|HostUnreachableException|StoragesNotFound
     {
         try {
             $storages = new GetStoragesFromNode($this->connection, $this->cookiesPVE);
@@ -61,9 +64,24 @@ class GClient
             return new AuthFailedException();
         }catch (HostUnreachableException $ex) {
             return new HostUnreachableException();
-        }catch (NodeNotFound $ex){
-            return new NodeNotFound();
+        }catch (StoragesNotFound $ex){
+            return new StoragesNotFound();
         }
+    }
+
+    public function GetNetworksFromNode(string $node):NetworksResponse|AuthFailedException|HostUnreachableException|NetworksNotFound
+    {
+        try {
+            $networks = new GetNetworksFromNode($this->connection, $this->cookiesPVE);
+            return $networks($node);
+        }catch (AuthFailedException $ex){
+            return new AuthFailedException();
+        }catch(HostUnreachableException $ex){
+            return new HostUnreachableException();
+        }catch(NetworksNotFound $ex){
+            return  new NetworksNotFound();
+        }
+
     }
 
 }
