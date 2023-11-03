@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace Tests;
+namespace Ginernet\Proxmox\Tests;
 
 use PHPUnit\Framework\TestCase;
-use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
-use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\GClient;
-use PromoxApiClient\Networks\Domain\Exceptions\NetworksNotFound;
-use PromoxApiClient\Networks\Domain\Responses\NetworksResponse;
-use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
-use PromoxApiClient\Storages\Domain\Exceptions\StoragesNotFound;
-use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
+use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\GClient;
+use Ginernet\Proxmox\Networks\Domain\Exceptions\NetworksNotFound;
+use Ginernet\Proxmox\Networks\Domain\Responses\NetworksResponse;
+use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
+use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
+use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
 
 class GClientTest extends  TestCase
 {

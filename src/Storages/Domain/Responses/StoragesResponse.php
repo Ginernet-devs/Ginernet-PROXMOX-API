@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Storages\Domain\Responses;
+namespace Ginernet\Proxmox\Storages\Domain\Responses;
 
 final class StoragesResponse
 {

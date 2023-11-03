@@ -1,15 +1,14 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Commons\infrastructure;
+namespace Ginernet\Proxmox\Commons\infrastructure;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use PromoxApiClient\Commons\Application\Helpers\GFunctions;
-use PromoxApiClient\Commons\Domain\Entities\Connection;
-use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
-use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Commons\Domain\Models\CoockiesPVE;
+use Ginernet\Proxmox\Commons\Application\Helpers\GFunctions;
+use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\Commons\Domain\Models\CoockiesPVE;
 
 abstract class GClientBase
 {

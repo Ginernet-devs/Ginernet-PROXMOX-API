@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Commons\Application\Helpers;
+namespace Ginernet\Proxmox\Commons\Application\Helpers;
 
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Psr7\Response;

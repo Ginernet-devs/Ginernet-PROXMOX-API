@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Commons\Domain\Entities;
+namespace Ginernet\Proxmox\Commons\Domain\Entities;
 
 use GuzzleHttp\Cookie\CookieJar;
-use PromoxApiClient\Commons\Domain\Models\CoockiesPVE;
+use Ginernet\Proxmox\Commons\Domain\Models\CoockiesPVE;
 
 class CookiesPVE implements CoockiesPVE
 {

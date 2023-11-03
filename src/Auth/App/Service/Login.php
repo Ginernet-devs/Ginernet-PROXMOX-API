@@ -1,16 +1,14 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Auth\App\Service;
+namespace Ginernet\Proxmox\Auth\App\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
-use PromoxApiClient\Commons\Application\Helpers\GFunctions;
-use PromoxApiClient\Commons\Domain\Entities\Connection;
-use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
-use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Commons\infrastructure\GClientBase;
+use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
+use Ginernet\Proxmox\Commons\Application\Helpers\GFunctions;
+use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
 
 final class Login
 {

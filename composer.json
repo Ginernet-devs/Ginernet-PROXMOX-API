@@ -1,21 +1,21 @@
 {
-    "name": "gridcp/promox-api-client",
+    "name": "ginernet/promox",
     "description": "Client for Api Promox",
     "type": "library",
     "license": "mit",
     "autoload": {
         "psr-4": {
-            "PromoxApiClient\\": "src/"
+            "Ginernet\\Proxmox\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Ginernet\\Proxmox\\Tests\\": "tests/"
         }
     },
     "authors": [
         {
-            "name": "Ginnernet Team"
+            "name": "Ginernet Team"
         }
     ],
     "require": {

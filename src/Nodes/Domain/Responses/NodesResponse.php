@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Nodes\Domain\Responses;
+namespace Ginernet\Proxmox\Nodes\Domain\Responses;
 
 final class NodesResponse
 {
