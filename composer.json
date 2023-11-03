@@ -1,6 +1,6 @@
 {
-    "name": "ginernet/promox",
-    "description": "Client for Api Promox",
+    "name": "ginernet/proxmox",
+    "description": "Client for Api Proxmox",
     "type": "library",
     "license": "mit",
     "autoload": {
