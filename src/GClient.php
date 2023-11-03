@@ -1,22 +1,22 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient;
-use GuzzleHttp\Cookie\CookieJar;
-use PromoxApiClient\Auth\App\Service\Login;
-use PromoxApiClient\Auth\Domain\Responses\LoginResponse;
-use PromoxApiClient\Commons\Domain\Entities\Connection;
-use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
-use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Networks\App\Service\GetNetworksFromNode;
-use PromoxApiClient\Networks\Domain\Exceptions\NetworksNotFound;
-use PromoxApiClient\Networks\Domain\Responses\NetworksResponse;
-use PromoxApiClient\Nodes\App\Service\GetNode;
-use PromoxApiClient\Nodes\App\Service\GetNodes;
-use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
-use PromoxApiClient\Storages\App\Service\GetStoragesFromNode;
-use PromoxApiClient\Storages\Domain\Exceptions\StoragesNotFound;
-use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
+namespace Ginernet\Proxmox;
+
+use Ginernet\Proxmox\Auth\App\Service\Login;
+use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
+use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
+use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\Networks\App\Service\GetNetworksFromNode;
+use Ginernet\Proxmox\Networks\Domain\Exceptions\NetworksNotFound;
+use Ginernet\Proxmox\Networks\Domain\Responses\NetworksResponse;
+use Ginernet\Proxmox\Nodes\App\Service\GetNode;
+use Ginernet\Proxmox\Nodes\App\Service\GetNodes;
+use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
+use Ginernet\Proxmox\Storages\App\Service\GetStoragesFromNode;
+use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
+use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
 
 class GClient
 {

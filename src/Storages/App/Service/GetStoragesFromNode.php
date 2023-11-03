@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Storages\App\Service;
+namespace Ginernet\Proxmox\Storages\App\Service;
 
 use GuzzleHttp\Exception\GuzzleException;
-use PromoxApiClient\Commons\Application\Helpers\GFunctions;
-use PromoxApiClient\Commons\Domain\Entities\Connection;
-use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
-use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Commons\infrastructure\GClientBase;
-use PromoxApiClient\Storages\Domain\Exceptions\StoragesNotFound;
-use PromoxApiClient\Storages\Domain\Responses\StorageResponse;
-use PromoxApiClient\Storages\Domain\Responses\StoragesResponse;
+use Ginernet\Proxmox\Commons\Application\Helpers\GFunctions;
+use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
+use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
+use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
+use Ginernet\Proxmox\Storages\Domain\Responses\StorageResponse;
+use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
 
 final class GetStoragesFromNode  extends GClientBase
 {

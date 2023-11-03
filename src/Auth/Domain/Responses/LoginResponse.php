@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Auth\Domain\Responses;
+namespace Ginernet\Proxmox\Auth\Domain\Responses;
 
 use GuzzleHttp\Cookie\CookieJar;
-use PromoxApiClient\Commons\Domain\Models\CoockiesPVE;
+use Ginernet\Proxmox\Commons\Domain\Models\CoockiesPVE;
 
 final class LoginResponse implements CoockiesPVE
 {

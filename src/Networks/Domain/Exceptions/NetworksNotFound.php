@@ -1,6 +1,6 @@
 <?php
-
-namespace PromoxApiClient\Networks\Domain\Exceptions;
+declare(strict_types=1);
+namespace Ginernet\Proxmox\Networks\Domain\Exceptions;
 
 class NetworksNotFound extends \Error
 {

@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Networks\App\Service;
+namespace Ginernet\Proxmox\Networks\App\Service;
 
 use GuzzleHttp\Exception\GuzzleException;
-use PromoxApiClient\Commons\Application\Helpers\GFunctions;
-use PromoxApiClient\Commons\Domain\Entities\Connection;
-use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
-use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Commons\infrastructure\GClientBase;
-use PromoxApiClient\Networks\Domain\Exceptions\NetworksNotFound;
-use PromoxApiClient\Networks\Domain\Responses\NetworkResponse;
-use PromoxApiClient\Networks\Domain\Responses\NetworksResponse;
+use Ginernet\Proxmox\Commons\Application\Helpers\GFunctions;
+use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
+use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
+use Ginernet\Proxmox\Networks\Domain\Exceptions\NetworksNotFound;
+use Ginernet\Proxmox\Networks\Domain\Responses\NetworkResponse;
+use Ginernet\Proxmox\Networks\Domain\Responses\NetworksResponse;
 
 final class GetNetworksFromNode extends GClientBase
 {

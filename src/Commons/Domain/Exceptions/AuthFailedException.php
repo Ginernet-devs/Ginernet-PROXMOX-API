@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Commons\Domain\Exceptions;
+namespace Ginernet\Proxmox\Commons\Domain\Exceptions;
 
 final class AuthFailedException extends \Error
 {

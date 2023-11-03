@@ -1,16 +1,16 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Nodes\App\Service;
+namespace Ginernet\Proxmox\Nodes\App\Service;
 
 use GuzzleHttp\Exception\GuzzleException;
-use PromoxApiClient\Commons\Application\Helpers\GFunctions;
-use PromoxApiClient\Commons\Domain\Entities\Connection;
-use PromoxApiClient\Commons\Domain\Entities\CookiesPVE;
-use PromoxApiClient\Commons\Domain\Exceptions\AuthFailedException;
-use PromoxApiClient\Commons\Domain\Exceptions\HostUnreachableException;
-use PromoxApiClient\Commons\infrastructure\GClientBase;
-use PromoxApiClient\Nodes\Domain\Responses\NodeResponse;
-use PromoxApiClient\Nodes\Domain\Responses\NodesResponse;
+use Ginernet\Proxmox\Commons\Application\Helpers\GFunctions;
+use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
+use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
+use Ginernet\Proxmox\Nodes\Domain\Responses\NodeResponse;
+use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
 
 final class GetNodes extends GClientBase
 {

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PromoxApiClient\Commons\Domain\Entities;
+namespace Ginernet\Proxmox\Commons\Domain\Entities;
 
 final class Connection
 {
