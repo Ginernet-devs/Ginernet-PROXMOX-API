@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Tests;
 
+use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
+use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
 use PHPUnit\Framework\TestCase;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
@@ -89,4 +91,17 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(NetworksNotFound::class, $result);
     }
 
+    public function testGetCpusFromNodeOK():void
+    {
+        $result = $this->client->GetCpusFromNode("ns1000");
+        $this->assertInstanceOf(CpusResponse::class, $result);
+    }
+
+   /* public  function testGetCpusFromNodeKO():void
+    {
+        $result = $this->client->GetCpusFromNode("t");
+        var_dump($result);
+        $this->assertInstanceOf(CpuNotFound::class, $result);
+    }
+    */
 }
