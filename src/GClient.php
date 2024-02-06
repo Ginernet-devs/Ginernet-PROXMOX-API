@@ -8,6 +8,9 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\Cpus\App\Service\GetCpuFromNode;
+use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
+use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
 use Ginernet\Proxmox\Networks\App\Service\GetNetworksFromNode;
 use Ginernet\Proxmox\Networks\Domain\Exceptions\NetworksNotFound;
 use Ginernet\Proxmox\Networks\Domain\Responses\NetworksResponse;
@@ -80,6 +83,20 @@ class GClient
             return new HostUnreachableException();
         }catch(NetworksNotFound $ex){
             return  new NetworksNotFound();
+        }
+
+    }
+    public function GetCpusFromNode(string $node):CpusResponse|AuthFailedException|HostUnreachableException|CpuNotFound
+    {
+        try {
+            $networks = new GetCpuFromNode($this->connection, $this->cookiesPVE);
+            return $networks($node);
+        }catch (AuthFailedException $ex){
+            return new AuthFailedException();
+        }catch(HostUnreachableException $ex){
+            return new HostUnreachableException();
+        }catch(CpuNotFound $ex){
+            return  new CpuNotFound();
         }
 
     }
