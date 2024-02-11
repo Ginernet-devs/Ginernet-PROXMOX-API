@@ -20,6 +20,10 @@ use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
 use Ginernet\Proxmox\Storages\App\Service\GetStoragesFromNode;
 use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
+use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Model\NetModel;
+use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 
 class GClient
 {
@@ -37,6 +41,7 @@ class GClient
         try {
             $auth = new Login($this->connection, null);
             $result = $auth();
+            if (is_null($result))  return new AuthFailedException();
             $this->cookiesPVE = new CookiesPVE($result->getCSRFPreventionToken(), $result->getCookies(), $result->getTicket());
             return $result;
         } catch (AuthFailedException $ex) {
@@ -99,6 +104,21 @@ class GClient
             return  new CpuNotFound();
         }
 
+    }
+
+    public function createVM(string $node, int $vmid, ?int $cores, ?string $name, ?int $netId, ?string $netModel, ?string $netBridge):VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
+    {
+        try {
+            $net= new NetModel($netId, $netModel, $netBridge);
+            $vm = new CreateVMinNode($this->connection, $this->cookiesPVE);
+            return $vm($node, $vmid, $cores, $name, $net);
+        }catch (AuthFailedException $ex){
+            return new AuthFailedException();
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException();
+        }catch (VmErrorCreate $ex){
+            return new VmErrorCreate($ex->getMessage());
+        }
     }
 
 }

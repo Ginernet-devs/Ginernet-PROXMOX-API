@@ -4,6 +4,8 @@ namespace Ginernet\Proxmox\Tests;
 
 use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
 use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use PHPUnit\Framework\TestCase;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
@@ -104,4 +106,20 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(CpuNotFound::class, $result);
     }
     */
+
+
+    public function testCreateVMOk():void
+    {
+        $result =$this->client->createVM('ns1000', 102,2,'Prueba', 0, 'virtio','vmbr0');
+        $this->assertInstanceOf(VmsResponse::class, $result);
+
+    }
+    public function testCreateVMError():void
+    {
+        $result =$this->client->createVM('ns1000', 102,2,'Prueba', 0, 'virtio','vmbr0');
+        $this->assertInstanceOf(VmErrorCreate::class, $result);
+
+    }
+
+
 }
