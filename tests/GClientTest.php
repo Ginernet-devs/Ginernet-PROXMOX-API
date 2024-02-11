@@ -104,4 +104,12 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(CpuNotFound::class, $result);
     }
     */
+
+    public function testCreateVM():void
+    {
+        $result =$this->client->createVM('ns1000', 105,2,'Prueba');
+        var_dump($result);
+    }
+
+
 }

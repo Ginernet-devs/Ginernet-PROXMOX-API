@@ -20,6 +20,7 @@ use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
 use Ginernet\Proxmox\Storages\App\Service\GetStoragesFromNode;
 use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
+use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
 
 class GClient
 {
@@ -100,6 +101,18 @@ class GClient
             return  new CpuNotFound();
         }
 
+    }
+
+    public function createVM(string $node, int $vmid, ?int $cores, ?string $name):CpusResponse|AuthFailedException|HostUnreachableException
+    {
+        try {
+            $vm = new CreateVMinNode($this->connection, $this->cookiesPVE);
+            $vm($node, $vmid, $cores, $name);
+        }catch (AuthFailedException $ex){
+            return new AuthFailedException();
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException();
+        }
     }
 
 }
