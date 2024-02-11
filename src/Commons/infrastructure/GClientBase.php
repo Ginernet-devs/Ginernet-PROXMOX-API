@@ -10,6 +10,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
 use Ginernet\Proxmox\Commons\Domain\Models\CoockiesPVE;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class GClientBase
 {
@@ -49,10 +50,10 @@ abstract class GClientBase
 
     }
 
-    protected function Post(string $request, array $requestBody): ?array
+    protected function Post(string $request, array $requestBody): ?ResponseInterface
     {
        try {
-            $result=  $this->client->request("POST", $this->connection->getUri() .  $request, [
+            return $this->client->request("POST", $this->connection->getUri() .  $request, [
                 'https_errors'=>false,
                 'verify' => false,
                 'headers' => array_merge($this->defaultHeaders,['CSRFPreventionToken'=>$this->cookies->getCSRFPreventionToken()]),
@@ -60,15 +61,12 @@ abstract class GClientBase
                 'exceptions'=>false,
                 'json' => (count($requestBody) > 0 ) ? $requestBody : null,
             ]);
-            var_dump("Resultado ->".$result->getBody()->getContents());
-            return $result;
-         //  return $this->decodeBody($result);
         }catch (GuzzleException $ex){
            if ($ex->getCode() === 0) throw new HostUnreachableException();
            if ($ex->getCode() === 401) throw new AuthFailedException();
            throw new PostRequestException($ex->getMessage());
         }
-      return null;
+
     }
 
     protected function getClient():Client{
