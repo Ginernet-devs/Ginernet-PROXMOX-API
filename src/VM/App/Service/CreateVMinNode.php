@@ -8,7 +8,12 @@ use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PostRequestException;
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
+use Ginernet\Proxmox\VM\Domain\Model\IdeModel;
+use Ginernet\Proxmox\VM\Domain\Model\IpModel;
 use Ginernet\Proxmox\VM\Domain\Model\NetModel;
+use Ginernet\Proxmox\VM\Domain\Model\ScsiModel;
+use Ginernet\Proxmox\VM\Domain\Model\UserModel;
 use Ginernet\Proxmox\VM\Domain\Responses\VmResponse;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use GuzzleHttp\Exception\GuzzleException;
@@ -23,7 +28,9 @@ final class CreateVMinNode extends  GClientBase
         parent::__construct($connection, $cookiesPVE);
     }
 
-    public function __invoke(string $node, int $vmid, ?int $cores, ?string $name, ?NetModel $net):?VmsResponse
+    public function __invoke(string $node, int $vmid, ?int $cores, ?string $name, ?NetModel $net,?bool $onBoot,
+                            ?string $scsihw, ?ScsiModel $scsi, ?string $tags,?IdeModel $ide, ?string $boot, ?string $bootDisk,
+                            ?string  $agent, ?IpModel $ip, ?UserModel $userModel, ?CpuModel $cpuModel):?VmsResponse
     {
 
         try {
@@ -31,10 +38,22 @@ final class CreateVMinNode extends  GClientBase
                 'vmid' => $vmid,
                 'cores' => $cores,
                 'name' => $name,
-                'net'.$net->GetIndex() =>'model='.$net->GetModel().',bridge='.$net->GetBridge()
+                'net'.$net->GetIndex() =>$net->toString(),
+                'onboot'=> $onBoot,
+                'scsihw'=>$scsihw,
+                'scsi'.$scsi->GetIndex()=> $scsi->toString(),
+                'tags' => $tags,
+                'ide'.$ide->GetIndex()=>$ide->GetFile(),
+                'boot'=>$boot,
+                'bootdisk'=>$bootDisk,
+                'ipconfig'.$ip->GetIndex() => $ip->toString(),
+                'ciuser'=>$userModel->GetUserName(),
+                'cipassword'=>$userModel->GetPassword(),
+                'cpu' =>$cpuModel->getCpuTypes(),
+                'memory'=>$cpuModel->getMemory(),
+                'balloon'=>$cpuModel->getBallon()
             ];
-            $result = $this->Post("/nodes/".$node."/qemu/", $body);
-            if(is_null($result)) return throw new VmErrorCreate("Error in create VM");
+            $result = $this->Post("nodes/".$node."/qemu/", $body);
             $getContent = json_decode($result->getBody()->getContents());
             return new VmsResponse(...array_map($this->toResponse(), (array)$getContent));
         }catch (PostRequestException $e ){
