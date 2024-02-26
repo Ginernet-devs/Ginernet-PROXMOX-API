@@ -4,6 +4,9 @@ namespace Ginernet\Proxmox\Tests;
 
 use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
 use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
+use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use PHPUnit\Framework\TestCase;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
@@ -104,4 +107,40 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(CpuNotFound::class, $result);
     }
     */
+
+
+    public function testCreateVMOk():void
+    {
+        $result =$this->client->createVM('ns1000', 102,2,'Prueba', 0, 'virtio',
+            'vmbr0',1,true, 'virtio-scsi-pci', 0, 0, 'on','directsync','/image/images/000/Debian-12-x86_64-GridCP-PVE_KVM-20231012.qcow2',
+            'deb12',0, 'main:cloudinit','c','scsi0', '1', 0,'5.134.113.50/24','5.134.113.1','root','password', 'x86-64-v2-AES', 4096, 0 );
+        $this->assertInstanceOf(VmsResponse::class, $result);
+
+    }
+    public function testCreateVMError():void
+    {
+
+        $result = $this->client->createVM('ns1001', 103, 2, 'Prueba', 0, 'virtio',
+            'vmbr0',1, true, 'virtio-scsi-pci', 0, 0, 'on', 'directsync', '/image/images/000/Debian-12-x86_64-GridCP-PVE_KVM-20231012.qcow2',
+            'deb12',0, 'main:cloudinit', 'c', 'scsi0', '1', 0,'5.134.113.50/24','5.134.113.1','root','password','x86-64-v2-AES', 4096, 0 );
+        $this->assertInstanceOf(VmErrorCreate::class, $result);
+    }
+        /*
+            /*public function testConfigVM():void
+            {
+                $this->client->configVM('ns1000',102,0,'on','directsync','/image/images/000/Debian-12-x86_64-GridCP-PVE_KVM-20231012.qcow2');
+            }*/
+
+    public function testResizeVMDiskOk():void
+    {
+        $result = $this->client->resizeVMDisk('ns1000', 102, 'scsi0','25G');
+        $this->assertNotEmpty($result);
+    }
+
+    public function testResizeVMDiskKO():void
+    {
+        $result = $this->client->resizeVMDisk('ns1000', 105, 'scsi5','25G');
+        $this->assertNotEmpty( $result);
+    }
+
 }

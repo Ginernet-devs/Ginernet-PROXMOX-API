@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Commons\infrastructure;
 
+use Ginernet\Proxmox\Commons\Domain\Exceptions\PostRequestException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\PutRequestException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Ginernet\Proxmox\Commons\Application\Helpers\GFunctions;
@@ -9,6 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
 use Ginernet\Proxmox\Commons\Domain\Models\CoockiesPVE;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class GClientBase
 {
@@ -48,20 +51,42 @@ abstract class GClientBase
 
     }
 
-    protected function Post(string $request, array $requestBody): ?array
+    protected function Post(string $request, array $requestBody): ?ResponseInterface
     {
        try {
-            $result=  $this->client->request("POST", $this->connection->getUri() .  $request, [
+            return $this->client->request("POST", $this->connection->getUri() .  $request, [
                 'https_errors'=>false,
                 'verify' => false,
-                'headers' => $this->defaultHeaders,
-                'json' => (count($requestBody) > 0 ) ? $requestBody : null]);
-           return $this->decodeBody($result);
+                'headers' => array_merge($this->defaultHeaders,['CSRFPreventionToken'=>$this->cookies->getCSRFPreventionToken()]),
+                'cookies'=>$this->cookies->getCookies(),
+                'exceptions'=>false,
+                'json' => (count($requestBody) > 0 ) ? $requestBody : null,
+            ]);
         }catch (GuzzleException $ex){
            if ($ex->getCode() === 0) throw new HostUnreachableException();
            if ($ex->getCode() === 401) throw new AuthFailedException();
+           throw new PostRequestException($ex->getMessage());
         }
-      return null;
+
+    }
+
+    protected  function Put(string $request, array $requestBody):?ResponseInterface
+    {
+
+        try {
+            return $this->client->request("PUT", $this->connection->getUri() .  $request, [
+                'https_errors'=>false,
+                'verify' => false,
+                'headers' => array_merge($this->defaultHeaders,['CSRFPreventionToken'=>$this->cookies->getCSRFPreventionToken()]),
+                'cookies'=>$this->cookies->getCookies(),
+                'exceptions'=>false,
+                'json' => (count($requestBody) > 0 ) ? $requestBody : null,
+            ]);
+        }catch (GuzzleException $ex){
+            if ($ex->getCode() === 0) throw new HostUnreachableException();
+            if ($ex->getCode() === 401) throw new AuthFailedException();
+            throw new PutRequestException($ex->getMessage());
+        }
     }
 
     protected function getClient():Client{
