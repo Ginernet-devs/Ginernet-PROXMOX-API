@@ -17,6 +17,9 @@ use Ginernet\Proxmox\Networks\Domain\Responses\NetworksResponse;
 use Ginernet\Proxmox\Nodes\App\Service\GetNode;
 use Ginernet\Proxmox\Nodes\App\Service\GetNodes;
 use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
+use Ginernet\Proxmox\Proxmox\Version\App\Service\GetVersionFromNode;
+use Ginernet\Proxmox\Proxmox\Version\Domain\Exceptions\VersionError;
+use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
 use Ginernet\Proxmox\Storages\App\Service\GetStoragesFromNode;
 use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
@@ -129,8 +132,7 @@ class GClient
             $vm = new CreateVMinNode($this->connection, $this->cookiesPVE);
             $user= new UserModel($userName, $password);
             $cpu = new CpuModel($cpuTypes, $cores, $memory, $ballon);
-            $result=  $vm($node, $vmid, $cores, $name, $net, $OnBoot, $scsihw, $scsi, $tags,$ide, $boot, $bootDisk, $agent, $ip, $user, $cpu);
-            return $result;
+            return $vm($node, $vmid, $cores, $name, $net, $OnBoot, $scsihw, $scsi, $tags,$ide, $boot, $bootDisk, $agent, $ip, $user, $cpu);
         }catch (AuthFailedException $ex){
             return new AuthFailedException($ex);
         }catch(HostUnreachableException $ex) {
@@ -165,6 +167,25 @@ class GClient
         }catch (ResizeVMDiskException $ex){
             return new ResizeVMDiskException($ex->getMessage());
         }
+    }
+
+    /**
+     * @return VersionResponse|AuthFailedException|HostUnreachableException|VersionError
+     */
+    public function getVersion():VersionResponse|AuthFailedException|HostUnreachableException|VersionError{
+
+        try{
+            $version = new GetVersionFromNode($this->connection,$this->cookiesPVE);
+            return  $version();
+        }catch(AuthFailedException $ex){
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex){
+            return new HostUnreachableException($ex);
+        }catch(VersionError $ex){
+            return new VersionError($ex->getMessage());
+        }
+
+
     }
 
 }
