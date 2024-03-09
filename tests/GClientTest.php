@@ -4,6 +4,7 @@ namespace Ginernet\Proxmox\Tests;
 
 use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
 use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
+use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
@@ -120,7 +121,7 @@ class GClientTest extends  TestCase
     public function testCreateVMError():void
     {
 
-        $result = $this->client->createVM('ns1001', 103, 2, 'Prueba', 0, 'virtio',
+        $result = $this->client->createVM('ns1000', 102, 2, 'Prueba', 0, 'virtio',
             'vmbr0',1, true, 'virtio-scsi-pci', 0, 0, 'on', 'directsync', '/image/images/000/Debian-12-x86_64-GridCP-PVE_KVM-20231012.qcow2',
             'deb12',0, 'main:cloudinit', 'c', 'scsi0', '1', 0,'5.134.113.50/24','5.134.113.1','root','password','x86-64-v2-AES', 4096, 0 );
         $this->assertInstanceOf(VmErrorCreate::class, $result);
@@ -141,6 +142,12 @@ class GClientTest extends  TestCase
     {
         $result = $this->client->resizeVMDisk('ns1000', 105, 'scsi5','25G');
         $this->assertNotEmpty( $result);
+    }
+
+    public function testVersion():void
+    {
+        $result = $this->client->getVersion();
+        $this->assertInstanceOf(VersionResponse::class, $result);
     }
 
 }
