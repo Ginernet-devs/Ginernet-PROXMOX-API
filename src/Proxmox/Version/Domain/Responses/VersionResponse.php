@@ -34,4 +34,6 @@ final readonly  class VersionResponse
     {
         return $this->version;
     }
+
+
 }

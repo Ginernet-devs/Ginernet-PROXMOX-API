@@ -29,7 +29,7 @@ final class GetVersionFromNode extends GClientBase
     {
         try {
             $result = $this->Get("/version", []);
-            if(empty($result)) throw new VersionError();
+            if(empty($result)) throw new VersionError("Error in get Version");
             return  $this->toResponse($result);
         }catch (GuzzleException $ex){
             if ($ex->getCode() === 401) throw new AuthFailedException();
