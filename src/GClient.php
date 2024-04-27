@@ -5,6 +5,8 @@ namespace Ginernet\Proxmox;
 use Ginernet\Proxmox\Auth\App\Service\Login;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
 use Ginernet\Proxmox\Cluster\App\GetClusterStatus;
+use Ginernet\Proxmox\Cluster\Domain\Exceptions\ClusterNotFound;
+use Ginernet\Proxmox\Cluster\Domain\Responses\ClusterResponse;
 use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
@@ -15,7 +17,6 @@ use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
 use Ginernet\Proxmox\Networks\App\Service\GetNetworksFromNode;
 use Ginernet\Proxmox\Networks\Domain\Exceptions\NetworksNotFound;
 use Ginernet\Proxmox\Networks\Domain\Responses\NetworksResponse;
-use Ginernet\Proxmox\Nodes\App\Service\GetNode;
 use Ginernet\Proxmox\Nodes\App\Service\GetNodes;
 use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
 use Ginernet\Proxmox\Proxmox\Version\App\Service\GetVersionFromNode;
@@ -37,17 +38,39 @@ use Ginernet\Proxmox\VM\Domain\Model\ScsiModel;
 use Ginernet\Proxmox\VM\Domain\Model\UserModel;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 
+/**
+ *
+ */
 class GClient
 {
+    /**
+     * @var Connection
+     */
     private Connection $connection;
+    /**
+     * @var string
+     */
     private string $CSRFPreventionToken;
+    /**
+     * @var CookiesPVE
+     */
     private CookiesPVE $cookiesPVE;
 
+    /**
+     * @param $hostname
+     * @param $username
+     * @param $password
+     * @param $realm
+     * @param $port
+     */
     public function __construct($hostname, $username, $password, $realm, $port = 8006)
     {
         $this->connection = new Connection($hostname, $port, $username, $password, $realm);
     }
 
+    /**
+     * @return LoginResponse|AuthFailedException|HostUnreachableException
+     */
     public function login(): LoginResponse|AuthFailedException|HostUnreachableException
     {
         try {
@@ -63,6 +86,9 @@ class GClient
         }
     }
 
+    /**
+     * @return NodesResponse|AuthFailedException|HostUnreachableException
+     */
     public function GetNodes(): NodesResponse|AuthFailedException|HostUnreachableException
     {
         try {
@@ -75,6 +101,10 @@ class GClient
         }
     }
 
+    /**
+     * @param string $node
+     * @return StoragesResponse|AuthFailedException|HostUnreachableException|StoragesNotFound
+     */
     public function GetStoragesFromNode(string $node):StoragesResponse |AuthFailedException|HostUnreachableException|StoragesNotFound
     {
         try {
@@ -89,6 +119,10 @@ class GClient
         }
     }
 
+    /**
+     * @param string $node
+     * @return NetworksResponse|AuthFailedException|HostUnreachableException|NetworksNotFound
+     */
     public function GetNetworksFromNode(string $node):NetworksResponse|AuthFailedException|HostUnreachableException|NetworksNotFound
     {
         try {
@@ -103,6 +137,11 @@ class GClient
         }
 
     }
+
+    /**
+     * @param string $node
+     * @return CpusResponse|AuthFailedException|HostUnreachableException|CpuNotFound
+     */
     public function GetCpusFromNode(string $node):CpusResponse|AuthFailedException|HostUnreachableException|CpuNotFound
     {
         try {
@@ -118,12 +157,44 @@ class GClient
 
     }
 
-    public function createVM(string $node, int $vmid, ?int $cores, ?string $name, ?int $netId,
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @param int|null $cores
+     * @param string|null $name
+     * @param int|null $netId
+     * @param string|null $netModel
+     * @param string|null $netBridge
+     * @param int|null $netFirewall
+     * @param bool|null $OnBoot
+     * @param string|null $scsihw
+     * @param int|null $scsiId
+     * @param int $main
+     * @param string $discard
+     * @param string|null $cache
+     * @param string|null $importFrom
+     * @param string|null $tags
+     * @param int|null $ideId
+     * @param string|null $ideFile
+     * @param string|null $boot
+     * @param string|null $bootDisk
+     * @param string|null $agent
+     * @param int|null $ipIndex
+     * @param string|null $ip
+     * @param string|null $gateway
+     * @param string|null $userName
+     * @param string|null $password
+     * @param string|null $cpuTypes
+     * @param int|null $memory
+     * @param int|null $ballon
+     * @return VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
+     */
+    public function createVM(string  $node, int $vmid, ?int $cores, ?string $name, ?int $netId,
                              ?string $netModel, ?string $netBridge, ?int $netFirewall, ?bool $OnBoot, ?string $scsihw,
-                            ?int $scsiId, int $main, string $discard, ?string $cache, ?string $importFrom,?string $tags,
-                             ?int $ideId,?string $ideFile, ?string $boot, ?string $bootDisk,?string $agent,
-                             ?int $ipIndex, ?string $ip, ?string $gateway, ?string $userName, ?string $password,
-                            ?string $cpuTypes, ?int $memory, ?int $ballon  ):VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
+                             ?int    $scsiId, int $main, string $discard, ?string $cache, ?string $importFrom, ?string $tags,
+                             ?int    $ideId, ?string $ideFile, ?string $boot, ?string $bootDisk, ?string $agent,
+                             ?int    $ipIndex, ?string $ip, ?string $gateway, ?string $userName, ?string $password,
+                             ?string $cpuTypes, ?int $memory, ?int $ballon  ):VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
     {
         try {
             $net= new NetModel($netId, $netModel, $netBridge, $netFirewall);
@@ -143,7 +214,16 @@ class GClient
         }
     }
 
-    public function configVM(string $node, int $vmid, ?int $index,?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @param int|null $index
+     * @param string|null $discard
+     * @param string|null $cache
+     * @param string|null $import
+     * @return string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
+     */
+    public function configVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
     {
         try{
             $configVM = new ConfigVMinNode($this->connection, $this->cookiesPVE);
@@ -156,6 +236,14 @@ class GClient
             return new ResizeVMDiskException($ex->getMessage());
         }
     }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @param string|null $disk
+     * @param string|null $size
+     * @return string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
+     */
     public function resizeVMDisk(string $node, int $vmid, ?string $disk, ?string $size): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
     {
         try{
@@ -189,7 +277,10 @@ class GClient
 
     }
 
-    public function getClusterStatus()
+    /**
+     * @return ClusterResponse|AuthFailedException|HostUnreachableException|ClusterNotFound
+     */
+    public function getClusterStatus():ClusterResponse|AuthFailedException|HostUnreachableException|ClusterNotFound
     {
         try {
             $status = new GetClusterStatus($this->connection, $this->cookiesPVE);
@@ -198,6 +289,9 @@ class GClient
             return new AuthFailedException($ex);
         } catch (HostUnreachableException $ex) {
             return new HostUnreachableException($ex);
+        }catch (ClusterNotFound $ex)
+        {
+            return new ClusterNotFound();
         }
 
     }
