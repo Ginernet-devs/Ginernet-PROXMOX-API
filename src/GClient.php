@@ -4,6 +4,7 @@ namespace Ginernet\Proxmox;
 
 use Ginernet\Proxmox\Auth\App\Service\Login;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
+use Ginernet\Proxmox\Cluster\App\GetClusterStatus;
 use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
@@ -185,6 +186,19 @@ class GClient
             return new VersionError($ex->getMessage());
         }
 
+
+    }
+
+    public function getClusterStatus()
+    {
+        try {
+            $status = new GetClusterStatus($this->connection, $this->cookiesPVE);
+            return $status();
+        }catch (AuthFailedException $ex){
+            return new AuthFailedException($ex);
+        } catch (HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        }
 
     }
 
