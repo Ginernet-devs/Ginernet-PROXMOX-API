@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Tests;
 
+use Ginernet\Proxmox\Cluster\App\GetClusterStatus;
+use Ginernet\Proxmox\Cluster\Domain\Responses\ClusterResponse;
 use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
 use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
 use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
@@ -23,11 +25,15 @@ class GClientTest extends  TestCase
 {
 
     private LoginResponse $auth;
+    private LoginResponse $authCLuster;
     private GClient $client;
+    private GClient $clientCluster;
 
     public function setUp():void{
         $this->client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
         $this->auth = $this->client->login();
+        $this->clientCluster = new GClient($_ENV['HOST_CLUSTER'], $_ENV['USERNAME_CLUSTER'], $_ENV['PASSWORD_CLUSTER'], $_ENV['REALM_CLUSTER']);
+        $this->authCLuster = $this->clientCluster->login();
     }
 
     public function testLoginClientOk():void
@@ -148,6 +154,12 @@ class GClientTest extends  TestCase
     {
         $result = $this->client->getVersion();
         $this->assertInstanceOf(VersionResponse::class, $result);
+    }
+
+    public function testGetClusterStatus():void
+    {
+        $result = $this->clientCluster->getClusterStatus();
+        $this->assertInstanceOf(ClusterResponse::class, $result);
     }
 
 }
