@@ -43,9 +43,11 @@ class GClientTest extends  TestCase
 
     public function testLoginClientUserNameKO():void
     {
-        $client = new GClient($_ENV['HOST'],'BRABRA',$_ENV['PASSWORD'],$_ENV['REALM']);
-        $result = $client->login();
-        $this->assertInstanceOf(AuthFailedException::class, $result);
+
+            $client = new GClient($_ENV['HOST'], 'BRABRA', $_ENV['PASSWORD'], $_ENV['REALM']);
+            $result = $client->login();
+            $this->assertInstanceOf(AuthFailedException::class, $result);
+            $this->assertEquals(401, $result->getCode());
     }
 
     public function testLoginClientPASSWORDKO():void
@@ -53,6 +55,7 @@ class GClientTest extends  TestCase
         $client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],'DFDFDF',$_ENV['REALM']);
         $result = $client->login();
         $this->assertInstanceOf(AuthFailedException::class, $result);
+        $this->assertEquals(401, $result->getCode());
     }
 
     public function testLoginClientREALMKO():void
@@ -60,6 +63,7 @@ class GClientTest extends  TestCase
         $client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],'BRA');
         $result = $client->login();
         $this->assertInstanceOf(AuthFailedException::class, $result);
+        $this->assertEquals(401, $result->getCode());
     }
 
     public function testLoginClientHOSTKO():void
