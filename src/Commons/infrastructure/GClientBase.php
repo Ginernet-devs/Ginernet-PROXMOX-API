@@ -18,16 +18,18 @@ abstract class GClientBase
 
     use GFunctions;
     private Client $client;
-    private Connection $connection;
-    private CoockiesPVE $cookies;
+    private ?Connection $connection;
+    private ?CoockiesPVE $cookies;
 
     private array $defaultHeaders = [
         'Content-Type' => 'application/json',
         'Accept' => 'application/json',
     ];
-    public function __construct(Connection $connection, CoockiesPVE $cookies)
+    public function __construct(?Connection $connection, ?CoockiesPVE $cookies)
     {
+        if(is_null($cookies)) throw  new AuthFailedException();
         $this->cookies= $cookies;
+        if(is_null($connection)) throw  new HostUnreachableException();
         $this->connection = $connection;
         $this->client = new Client([$connection->getHost()]);
     }
