@@ -30,7 +30,6 @@ final class Connection
         $this->username = $username;
         $this->password = $password;
         $this->realm = $realm;
-        $this->realm = $realm;
         $this->uri = "https://".$host.":".$port."/api2/json/";
     }
 

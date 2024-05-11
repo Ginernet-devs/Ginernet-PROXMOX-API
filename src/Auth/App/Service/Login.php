@@ -30,7 +30,7 @@ final class Login
         $this->client = new Client([$connection->getHost()]);
     }
 
-    public function __invoke(): ?LoginResponse
+    public function __invoke(): LoginResponse|AuthFailedException|HostUnreachableException|null
 
     {
         try {
@@ -46,6 +46,7 @@ final class Login
                 'headers' => $this->defaultHeaders,
                 'json' => (count($body) > 0 ) ? $body : null]);
            $response = $this->decodeBody($result);
+           if(!$response) throw new AuthFailedException();
            $cookie = $this->getCookies($response['ticket'], $this->connection->getHost());
            return new LoginResponse($response['CSRFPreventionToken'], $cookie, $response['ticket']);
         } catch (GuzzleException $ex) {
