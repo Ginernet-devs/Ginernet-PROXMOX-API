@@ -65,8 +65,9 @@ class GClient
      */
     public function __construct($hostname, $username, $password, $realm, $port = 8006)
     {
-        $this->connection = new Connection($hostname, $port, $username, $password, $realm);
+        $this->connection =  new Connection($hostname, $port, $username, $password, $realm);
     }
+
 
     /**
      * @return LoginResponse|AuthFailedException|HostUnreachableException
@@ -76,7 +77,8 @@ class GClient
         try {
             $auth = new Login($this->connection, null);
             $result = $auth();
-            if (is_null($result))  return new AuthFailedException();
+             var_dump($result->getCode());
+            if (is_null($result->getCookies()))  return new AuthFailedException();
             $this->cookiesPVE = new CookiesPVE($result->getCSRFPreventionToken(), $result->getCookies(), $result->getTicket());
             return $result;
         } catch (AuthFailedException $ex) {

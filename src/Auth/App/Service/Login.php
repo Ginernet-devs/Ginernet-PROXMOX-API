@@ -53,7 +53,6 @@ final class Login
             if ($ex->getCode() === 401) throw new AuthFailedException();
             if ($ex->getCode() === 0) throw new HostUnreachableException();
         }
-        return null;
     }
 
 

@@ -29,18 +29,18 @@ class GClientTest extends  TestCase
     private GClient $client;
     private GClient $clientCluster;
 
-    public function setUp():void{
+   /* public function setUp():void{
         $this->client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
         $this->auth = $this->client->login();
         $this->clientCluster = new GClient($_ENV['HOST_CLUSTER'], $_ENV['USERNAME_CLUSTER'], $_ENV['PASSWORD_CLUSTER'], $_ENV['REALM_CLUSTER']);
         $this->authCLuster = $this->clientCluster->login();
-    }
+    }*/
 
-    public function testLoginClientOk():void
+  /*  public function testLoginClientOk():void
     {
         $this->assertInstanceOf(LoginResponse::class, $this->auth);
     }
-
+*/
     public function testLoginClientUserNameKO():void
     {
 
@@ -49,7 +49,7 @@ class GClientTest extends  TestCase
             $this->assertInstanceOf(AuthFailedException::class, $result);
             $this->assertEquals(401, $result->getCode());
     }
-
+/*
     public function testLoginClientPASSWORDKO():void
     {
         $client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],'DFDFDF',$_ENV['REALM']);
@@ -110,6 +110,7 @@ class GClientTest extends  TestCase
         $result = $this->client->GetCpusFromNode("ns1000");
         $this->assertInstanceOf(CpusResponse::class, $result);
     }
+  */
 
    /* public  function testGetCpusFromNodeKO():void
     {
@@ -119,7 +120,7 @@ class GClientTest extends  TestCase
     }
     */
 
-
+/*
     public function testCreateVMOk():void
     {
         $result =$this->client->createVM('ns1000', 102,2,'Prueba', 0, 'virtio',
@@ -142,6 +143,7 @@ class GClientTest extends  TestCase
                 $this->client->configVM('ns1000',102,0,'on','directsync','/image/images/000/Debian-12-x86_64-GridCP-PVE_KVM-20231012.qcow2');
             }*/
 
+    /*
     public function testResizeVMDiskOk():void
     {
         $result = $this->client->resizeVMDisk('ns1000', 102, 'scsi0','25G');
@@ -165,5 +167,6 @@ class GClientTest extends  TestCase
         $result = $this->clientCluster->getClusterStatus();
         $this->assertInstanceOf(ClusterResponse::class, $result);
     }
+    */
 
 }

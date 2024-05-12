@@ -27,6 +27,7 @@ abstract class GClientBase
     ];
     public function __construct(?Connection $connection, ?CoockiesPVE $cookies)
     {
+        var_dump($cookies);
         if(is_null($cookies)) throw  new AuthFailedException();
         $this->cookies= $cookies;
         if(is_null($connection)) throw  new HostUnreachableException();
