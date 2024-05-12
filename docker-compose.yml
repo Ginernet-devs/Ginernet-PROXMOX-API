@@ -1,5 +1,4 @@
-version: '3.4'
-services: 
+services:
 
    api:
         image: 'ghcr.io/ginernet-devs/docker-php-8.5.2:main'

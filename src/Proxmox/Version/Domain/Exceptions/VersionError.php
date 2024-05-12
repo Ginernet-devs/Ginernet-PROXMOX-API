@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Proxmox\Version\Domain\Exceptions;
 
-final class VersionError extends \Error
+final class VersionError extends \Exception
 {
     /**
      * @param string $message

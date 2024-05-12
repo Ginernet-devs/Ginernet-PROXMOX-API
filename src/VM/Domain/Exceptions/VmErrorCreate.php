@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\VM\Domain\Exceptions;
 
-final class VmErrorCreate extends \error
+final class VmErrorCreate extends \Exception
 {
     public function __construct(string $message)
     {

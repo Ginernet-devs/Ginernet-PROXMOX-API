@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Networks\Domain\Exceptions;
 
-class NetworksNotFound extends \Error
+class NetworksNotFound extends \Exception
 {
     public function __construct()
     {
