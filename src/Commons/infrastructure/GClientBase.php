@@ -45,6 +45,8 @@ abstract class GClientBase
                'exceptions'=>false,
                'cookies'=>$this->cookies->getCookies(),
            ]);
+           if ($result->getStatusCode()==401) throw new AuthFailedException();
+           if ($result->getStatusCode() === 0) throw new HostUnreachableException();
            return $this->decodeBody($result);
        }catch (GuzzleException $ex){
            if ($ex->getCode() === 0) throw new HostUnreachableException();
@@ -57,7 +59,7 @@ abstract class GClientBase
     protected function Post(string $request, array $requestBody): ?ResponseInterface
     {
        try {
-            return $this->client->request("POST", $this->connection->getUri() .  $request, [
+            $result=  $this->client->request("POST", $this->connection->getUri() .  $request, [
                 'https_errors'=>false,
                 'verify' => false,
                 'headers' => array_merge($this->defaultHeaders,['CSRFPreventionToken'=>$this->cookies->getCSRFPreventionToken()]),
@@ -65,19 +67,21 @@ abstract class GClientBase
                 'exceptions'=>false,
                 'json' => (count($requestBody) > 0 ) ? $requestBody : null,
             ]);
+           if ($result->getStatusCode()==401) throw new AuthFailedException();
+           if ($result->getStatusCode() === 0) throw new HostUnreachableException();
+           return $result;
         }catch (GuzzleException $ex){
            if ($ex->getCode() === 0) throw new HostUnreachableException();
            if ($ex->getCode() === 401) throw new AuthFailedException();
            throw new PostRequestException($ex->getMessage());
         }
-
     }
 
     protected  function Put(string $request, array $requestBody):?ResponseInterface
     {
 
         try {
-            return $this->client->request("PUT", $this->connection->getUri() .  $request, [
+            $result = $this->client->request("PUT", $this->connection->getUri() .  $request, [
                 'https_errors'=>false,
                 'verify' => false,
                 'headers' => array_merge($this->defaultHeaders,['CSRFPreventionToken'=>$this->cookies->getCSRFPreventionToken()]),
@@ -85,6 +89,9 @@ abstract class GClientBase
                 'exceptions'=>false,
                 'json' => (count($requestBody) > 0 ) ? $requestBody : null,
             ]);
+            if ($result->getStatusCode()==401) throw new AuthFailedException();
+            if ($result->getStatusCode() === 0) throw new HostUnreachableException();
+            return $result;
         }catch (GuzzleException $ex){
             if ($ex->getCode() === 0) throw new HostUnreachableException();
             if ($ex->getCode() === 401) throw new AuthFailedException();
