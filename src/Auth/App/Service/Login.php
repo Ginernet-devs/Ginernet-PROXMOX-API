@@ -39,14 +39,13 @@ final class Login
                 'password' => $this->connection->getPassword(),
                 'realm' => $this->connection->getRealm()
             ];
-
             $result=  $this->client->request("POST", $this->connection->getUri() .'access/ticket' , [
                 'https_errors'=>false,
                 'verify' => false,
                 'headers' => $this->defaultHeaders,
                 'json' => (count($body) > 0 ) ? $body : null]);
            $response = $this->decodeBody($result);
-           if(!$response) throw new AuthFailedException();
+           if($result->getStatusCode()===401) throw new AuthFailedException();
            $cookie = $this->getCookies($response['ticket'], $this->connection->getHost());
            return new LoginResponse($response['CSRFPreventionToken'], $cookie, $response['ticket']);
         } catch (GuzzleException $ex) {
