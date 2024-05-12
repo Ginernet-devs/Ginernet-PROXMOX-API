@@ -75,9 +75,9 @@ class GClient
     public function login(): LoginResponse|AuthFailedException|HostUnreachableException
     {
         try {
+
             $auth = new Login($this->connection, null);
             $result = $auth();
-             var_dump($result->getCode());
             if (is_null($result->getCookies()))  return new AuthFailedException();
             $this->cookiesPVE = new CookiesPVE($result->getCSRFPreventionToken(), $result->getCookies(), $result->getTicket());
             return $result;

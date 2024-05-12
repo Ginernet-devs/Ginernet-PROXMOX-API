@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\VM\Domain\Exceptions;
 
-final class ResizeVMDiskException extends \error
+final class ResizeVMDiskException extends \Exception
 {
     public function __construct(string $message)
     {
