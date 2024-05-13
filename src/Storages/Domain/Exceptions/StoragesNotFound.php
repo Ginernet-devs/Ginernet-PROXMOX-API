@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Storages\Domain\Exceptions;
 
-final class StoragesNotFound extends \Exception
+class StoragesNotFound extends \Exception
 {
     public function __construct()
     {

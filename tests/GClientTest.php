@@ -44,8 +44,9 @@ class GClientTest extends  TestCase
     public function testLoginClientUserNameKO():void
     {
 
-            $client = new GClient($_ENV['HOST'], 'BRABRA', $_ENV['PASSWORD'], $_ENV['REALM']);
+            $client = new GClient($_ENV['HOST_CLUSTER'], 'root', $_ENV['PASSWORD'], $_ENV['REALM']);
             $result = $client->login();
+            var_dump($result);
             $this->assertInstanceOf(AuthFailedException::class, $result);
             $this->assertEquals(401, $result->getCode());
     }
