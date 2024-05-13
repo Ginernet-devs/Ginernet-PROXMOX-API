@@ -27,16 +27,14 @@ abstract class GClientBase
     ];
     public function __construct(?Connection $connection, ?CoockiesPVE $cookies)
     {
-
-        if(is_null($cookies)) throw  new AuthFailedException();
         $this->cookies= $cookies;
-        if(is_null($connection)) throw  new HostUnreachableException();
         $this->connection = $connection;
         $this->client = new Client([$connection->getHost()]);
     }
     protected function Get(string $request, array $params=[]):?array
     {
        try{
+           if ($this->cookies->getCookies() === null) throw new AuthFailedException();
            $result= $this->client->request('GET', $this->connection->getUri().$request,[
               'https_errors' => false,
               'verify'=> false,
