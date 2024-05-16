@@ -94,6 +94,9 @@ class GClient
     public function GetNodes(): NodesResponse|AuthFailedException|HostUnreachableException
     {
         try {
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $nodes = new GetNodes($this->connection, $this->cookiesPVE);
             return $nodes();
         }catch (AuthFailedException $ex) {
@@ -110,6 +113,9 @@ class GClient
     public function GetStoragesFromNode(string $node):StoragesResponse |AuthFailedException|HostUnreachableException|StoragesNotFound
     {
         try {
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $storages = new GetStoragesFromNode($this->connection, $this->cookiesPVE);
             return $storages($node);
         }catch (AuthFailedException $ex) {
@@ -128,6 +134,9 @@ class GClient
     public function GetNetworksFromNode(string $node):NetworksResponse|AuthFailedException|HostUnreachableException|NetworksNotFound
     {
         try {
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $networks = new GetNetworksFromNode($this->connection, $this->cookiesPVE);
             return $networks($node);
         }catch (AuthFailedException $ex){
@@ -147,6 +156,9 @@ class GClient
     public function GetCpusFromNode(string $node):CpusResponse|AuthFailedException|HostUnreachableException|CpuNotFound
     {
         try {
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $networks = new GetCpuFromNode($this->connection, $this->cookiesPVE);
             return $networks($node);
         }catch (AuthFailedException $ex){
@@ -228,6 +240,9 @@ class GClient
     public function configVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
     {
         try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $configVM = new ConfigVMinNode($this->connection, $this->cookiesPVE);
             return $configVM($node,$vmid,0, $discard, $cache,$import);
         }catch (AuthFailedException $ex){
@@ -249,6 +264,9 @@ class GClient
     public function resizeVMDisk(string $node, int $vmid, ?string $disk, ?string $size): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
     {
         try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $resizeVMDisk = new ResizeVMDisk($this->connection, $this->cookiesPVE);
             return $resizeVMDisk($node, $vmid,$disk,$size);
         }catch (AuthFailedException $ex){
@@ -266,6 +284,9 @@ class GClient
     public function getVersion():VersionResponse|AuthFailedException|HostUnreachableException|VersionError{
 
         try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $version = new GetVersionFromNode($this->connection,$this->cookiesPVE);
             return  $version();
         }catch(AuthFailedException $ex){
@@ -285,6 +306,9 @@ class GClient
     public function getClusterStatus():ClusterResponse|AuthFailedException|HostUnreachableException|ClusterNotFound
     {
         try {
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
             $status = new GetClusterStatus($this->connection, $this->cookiesPVE);
             return $status();
         }catch (AuthFailedException $ex){
