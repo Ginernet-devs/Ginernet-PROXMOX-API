@@ -30,8 +30,7 @@ final class GetClusterStatus extends GClientBase
             $result = $this->Get("/cluster/status", []);
             if (empty($result)) throw new ClusterNotFound();
             $cluster = $result[0];
-            $nodeCluster = array_slice($result, 1);
-            if (empty($nodeCluster)) throw new ClusterNotFound();
+            $nodeCluster = array_slice($result, 0);
             return new ClusterResponse(
               (array_key_exists('type', $cluster))?$cluster['type']:null,
               (array_key_exists('name', $cluster))?$cluster['name']:null,
