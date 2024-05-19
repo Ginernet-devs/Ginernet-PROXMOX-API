@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Cluster\Domain\Responses;
 
+
 final readonly class NodesCluster
 {
     public function __construct(private ?string $name, private ?string $ip, private ?string $type,
