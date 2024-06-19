@@ -1,13 +1,14 @@
 <?php
 declare(strict_types=1);
-namespace Ginernet\Proxmox\VM\Domain\Model;
+namespace Ginernet\Proxmox\VM\Domain\Model\Storage;
 
-final class  ScsiModel
+use Ginernet\Proxmox\VM\Domain\Model\StorageInterface;
+
+final class SataModel implements StorageInterface
 {
-
     private string $text;
 
-    public function __construct(private readonly ?int    $index, private readonly ?int $main, private readonly ?string $discard, private readonly ?string $cache,
+    public function __construct(private readonly ?int    $index, private readonly ?string $diskStorage, private readonly ?string $discard, private readonly ?string $cache,
                                 private readonly ?string $importFrom)
     {
         $this->text='';
@@ -18,9 +19,9 @@ final class  ScsiModel
         return $this->index;
     }
 
-    private function GetMain(): ?int
+    public function GetDiskStorage(): ?string
     {
-        return $this->main;
+        return $this->diskStorage;
     }
 
     public function GetDiscard(): ?string
@@ -39,12 +40,10 @@ final class  ScsiModel
     }
 
     public function toString():?string{
-
-        if(empty($this->GetMain())) $this->text  .= "file=main:".$this->GetMain();
+        if($this->GetDiskStorage()) $this->text =$this->GetDiskStorage().':0';
         if($this->GetDiscard()) $this->text .=",discard=".$this->GetDiscard();
         if($this->GetCache()) $this->text .=",cache=".$this->GetCache();
         if($this->GetImportFrom()) $this->text .=",import-from=".$this->GetImportFrom();
         return $this->text;
     }
-
 }

@@ -28,7 +28,7 @@ final class GetStoragesFromNode  extends GClientBase
     public function __invoke(string $node):?StoragesResponse
     {
         try {
-            $result = $this->Get("/nodes/".$node."/storage", []);
+            $result = $this->Get("/nodes/".$node."/Storage", []);
             if (empty($result)) throw new StoragesNotFound();
             return  new StoragesResponse(...array_map($this->toResponse(), $result));
         }catch(GuzzleException $ex){
@@ -46,7 +46,7 @@ final class GetStoragesFromNode  extends GClientBase
             (array_key_exists('avail', $result))?$result['avail']:0,
             (array_key_exists('total', $result))?$result['total']:0,
             (array_key_exists('enabled', $result)) && $result['enabled']===1,
-            (array_key_exists('storage', $result))?$result['storage']:"",
+            (array_key_exists('Storage', $result))?$result['Storage']:"",
             (array_key_exists("used_fraction", $result))?$result['used_fraction']:0.0,
             (array_key_exists('content', $result))?explode(',',$result['content']):[],
             array_key_exists('active', $result) && $result['active'] === 1,
