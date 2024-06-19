@@ -11,6 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
+use Ginernet\Proxmox\Commons\Domain\Models\DiskTypePVE;
 use Ginernet\Proxmox\Cpus\App\Service\GetCpuFromNode;
 use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
 use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
@@ -31,10 +32,13 @@ use Ginernet\Proxmox\VM\App\Service\ResizeVMDisk;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
-use Ginernet\Proxmox\VM\Domain\Model\IdeModel;
+use Ginernet\Proxmox\VM\Domain\Model\EfiModel;
 use Ginernet\Proxmox\VM\Domain\Model\IpModel;
 use Ginernet\Proxmox\VM\Domain\Model\NetModel;
-use Ginernet\Proxmox\VM\Domain\Model\ScsiModel;
+use Ginernet\Proxmox\VM\Domain\Model\Storage\IdeModel;
+use Ginernet\Proxmox\VM\Domain\Model\storage\ScsiModel;
+use Ginernet\Proxmox\VM\Domain\Model\storage\SataModel;
+use Ginernet\Proxmox\VM\Domain\Model\storage\VirtioModel;
 use Ginernet\Proxmox\VM\Domain\Model\UserModel;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 
@@ -172,53 +176,61 @@ class GClient
     }
 
     /**
-     * @param string $node
-     * @param int $vmid
-     * @param int|null $cores
-     * @param string|null $name
-     * @param int|null $netId
-     * @param string|null $netModel
-     * @param string|null $netBridge
-     * @param int|null $netFirewall
-     * @param bool|null $OnBoot
-     * @param string|null $scsihw
-     * @param int|null $scsiId
-     * @param int $main
-     * @param string $discard
-     * @param string|null $cache
-     * @param string|null $importFrom
-     * @param string|null $tags
-     * @param int|null $ideId
-     * @param string|null $ideFile
-     * @param string|null $boot
-     * @param string|null $bootDisk
-     * @param string|null $agent
-     * @param int|null $ipIndex
-     * @param string|null $ip
-     * @param string|null $gateway
-     * @param string|null $userName
-     * @param string|null $password
-     * @param string|null $cpuTypes
-     * @param int|null $memory
-     * @param int|null $ballon
+     * @param string $nodeName
+     * @param int $vmId
+     * @param int|null $vmCpuCores
+     * @param string|null $vmName
+     * @param int|null $vmNetId
+     * @param string|null $vmNetModel
+     * @param string|null $vmNetBridge
+     * @param int|null $vmNetFirewall
+     * @param bool|null $vmOnBoot
+     * @param string|null $vmScsiHw
+     * @param string|null $vmDiskType
+     * @param int|null $vmDiskId
+     * @param string|null $vmDiskStorage
+     * @param string $vmDiskDiscard
+     * @param string|null $vmDiskCache
+     * @param string|null $vmDiskImportFrom
+     * @param string|null $vmTags
+     * @param int|null $vmCloudInitIdeId
+     * @param string|null $vmCloudInitStorage
+     * @param string|null $vmBootOrder
+     * @param int|null $vmAgent
+     * @param int|null $vmNetNetId
+     * @param string|null $vmNetIp
+     * @param string|null $vmNetGw
+     * @param string|null $vmOsUserName
+     * @param string|null $vmOsPassword
+     * @param string|null $vmCpuType
+     * @param int|null $vmMemory
+     * @param int|null $vmMemoryBallon
      * @return VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
      */
-    public function createVM(string  $node, int $vmid, ?int $cores, ?string $name, ?int $netId,
-                             ?string $netModel, ?string $netBridge, ?int $netFirewall, ?bool $OnBoot, ?string $scsihw,
-                             ?int    $scsiId, int $main, string $discard, ?string $cache, ?string $importFrom, ?string $tags,
-                             ?int    $ideId, ?string $ideFile, ?string $boot, ?string $bootDisk, ?string $agent,
-                             ?int    $ipIndex, ?string $ip, ?string $gateway, ?string $userName, ?string $password,
-                             ?string $cpuTypes, ?int $memory, ?int $ballon  ):VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
+
+     public function createVM(string  $nodeName, int $vmId, ?int $vmCpuCores, ?string $vmName, ?int $vmNetId,
+                              ?string $vmNetModel, ?string $vmNetBridge, ?int $vmNetFirewall, ?bool $vmOnBoot, ?string $vmScsiHw,
+                              ?string $vmDiskType, ?int    $vmDiskId, ?string $vmDiskStorage, string $vmDiskDiscard, ?string $vmDiskCache, ?string $vmDiskImportFrom, ?string $vmTags,
+                              ?int    $vmCloudInitIdeId, ?string $vmCloudInitStorage, ?string $vmBootOrder, ?int $vmAgent,
+                              ?int    $vmNetNetId, ?string $vmNetIp, ?string $vmNetGw, ?string $vmOsUserName, ?string $vmOsPassword,
+                              ?string $vmCpuType, ?int $vmMemory, ?int $vmMemoryBallon,?string $vmOsType,?string $vmBios,?string $vmMachinePc,
+                              ?string $vmEfiStorage, ?int $vmEfiKey):VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
     {
         try {
-            $net= new NetModel($netId, $netModel, $netBridge, $netFirewall);
-            $scsi = new ScsiModel($scsiId, $main, $discard, $cache, $importFrom );
-            $ide = new IdeModel($ideId,$ideFile);
-            $ip = new IpModel($ipIndex,$ip,$gateway);
+            $net= new NetModel($vmNetId, $vmNetModel, $vmNetBridge, $vmNetFirewall);
+            $scsi= ($vmDiskType == DiskTypePVE::SCSI->value)? new ScsiModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
+            $ide= ($vmDiskType == DiskTypePVE::IDE->value)? new IdeModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
+            $sata= ($vmDiskType == DiskTypePVE::SATA->value)? new SataModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
+            $virtio= ($vmDiskType == DiskTypePVE::VIRTIO->value)? new VirtioModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
+            $vmNetIp = new IpModel($vmNetNetId,$vmNetIp,$vmNetGw);
             $vm = new CreateVMinNode($this->connection, $this->cookiesPVE);
-            $user= new UserModel($userName, $password);
-            $cpu = new CpuModel($cpuTypes, $cores, $memory, $ballon);
-            return $vm($node, $vmid, $cores, $name, $net, $OnBoot, $scsihw, $scsi, $tags,$ide, $boot, $bootDisk, $agent, $ip, $user, $cpu);
+            $user= new UserModel($vmOsUserName, $vmOsPassword);
+            $cpu = new CpuModel($vmCpuType, $vmCpuCores, $vmMemory, $vmMemoryBallon);
+            $efi= new EfiModel($vmEfiStorage, $vmEfiKey);
+            $result = $vm($nodeName, $vmId, $vmCpuCores, $vmName, $net, $vmOnBoot, $vmScsiHw, $scsi,$ide,$sata,$virtio, $vmTags, $vmBootOrder,$vmAgent, $vmNetIp, $user,$cpu, $vmOsType, $vmBios, $vmMachinePc, $efi);
+
+
+            return $result;
         }catch (AuthFailedException $ex){
             return new AuthFailedException($ex);
         }catch(HostUnreachableException $ex) {
