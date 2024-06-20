@@ -26,11 +26,14 @@ use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
 use Ginernet\Proxmox\Storages\App\Service\GetStoragesFromNode;
 use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
-use Ginernet\Proxmox\VM\App\Service\ConfigVMinNode;
+use Ginernet\Proxmox\VM\App\Service\CreateConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
+use Ginernet\Proxmox\VM\App\Service\GetConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\ResizeVMDisk;
+use Ginernet\Proxmox\VM\App\Service\StartVMinNode;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
 use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
 use Ginernet\Proxmox\VM\Domain\Model\EfiModel;
 use Ginernet\Proxmox\VM\Domain\Model\IpModel;
@@ -40,6 +43,7 @@ use Ginernet\Proxmox\VM\Domain\Model\storage\ScsiModel;
 use Ginernet\Proxmox\VM\Domain\Model\storage\SataModel;
 use Ginernet\Proxmox\VM\Domain\Model\storage\VirtioModel;
 use Ginernet\Proxmox\VM\Domain\Model\UserModel;
+use Ginernet\Proxmox\VM\Domain\Responses\VmResponse;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 
 /**
@@ -249,13 +253,13 @@ class GClient
      * @param string|null $import
      * @return string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
      */
-    public function configVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
+    public function createConfigVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
     {
         try{
             if (!isset($this->cookiesPVE)){
                 return new AuthFailedException("Auth failed!!!");
             };
-            $configVM = new ConfigVMinNode($this->connection, $this->cookiesPVE);
+            $configVM = new CreateConfigVMinNode($this->connection, $this->cookiesPVE);
             return $configVM($node,$vmid,0, $discard, $cache,$import);
         }catch (AuthFailedException $ex){
             return new AuthFailedException($ex);
@@ -263,6 +267,38 @@ class GClient
             return new HostUnreachableException($ex);
         }catch (ResizeVMDiskException $ex){
             return new ResizeVMDiskException($ex->getMessage());
+        }
+    }
+
+    public function getConfigVM(string $node, int $vmid)
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $getConfigVM =new GetConfigVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmid);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }
+    }
+
+    public function startConfigVM(string $node, int $vmid):string|AuthFailedException|HostUnreachableException|VmErrorStart
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $getConfigVM =new StartVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmid);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        }catch (VmErrorStart $ex){
+            return new VmErrorStart($ex->getMessage());
         }
     }
 

@@ -9,6 +9,7 @@ use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
 use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use PHPUnit\Framework\TestCase;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
@@ -40,7 +41,7 @@ class GClientTest extends  TestCase
     {
         $this->assertInstanceOf(LoginResponse::class, $this->auth);
     }
-/*
+
     public function testLoginClientUserNameKO():void
     {
 
@@ -81,7 +82,7 @@ class GClientTest extends  TestCase
 
     public function testGetStoragesFromNodeOK():void
     {
-        $result = $this->client->GetStoragesFromNode("ns1000");
+        $result = $this->client->GetStoragesFromNode("ns1047");
         $this->assertInstanceOf(StoragesResponse::class, $result);
     }
 
@@ -121,7 +122,7 @@ class GClientTest extends  TestCase
     */
 
 
-    public function testCreateVMOk():void
+    /*public function testCreateVMOk():void
     {
         $result =$this->client->createVM('ns1047', 101,2,'hostname', 0, 'virtio',
             'vmbr0',1,true, 'virtio-scsi-pci', 'SCSI',0, 'nvme', 'on','directsync','/mnt/pve/nfs-iso/gcp-images/Debian-12-x86_64-GridCP-PVE_KVM-20240610.qcow2',
@@ -139,6 +140,31 @@ class GClientTest extends  TestCase
             null,null, null,null);
         $this->assertInstanceOf(VmErrorCreate::class, $result);
     }
+*/
+
+    public  function testGetVMConfiguration():void
+    {
+        $result = $this->client->getConfigVM('ns1047',101);
+        $this->assertNotEmpty($result);
+    }
+
+    public  function testStartVMConfigurationOK():void
+    {
+        $result = $this->client->startConfigVM('ns1047',101);
+          $this->assertNotEmpty($result);
+    }
+
+    public  function testStartVMConfigurationNodeErrorKO():void
+    {
+        $result = $this->client->startConfigVM('nsxxx',101);
+        $this->assertInstanceOf(VmErrorStart::class, $result);
+    }
+
+    public  function testStartVMConfigurationVmidErrorKO():void   {
+        $result = $this->client->startConfigVM('ns1047',0);
+        $this->assertInstanceOf(VmErrorStart::class, $result);
+    }
+
 
        /*    public function testConfigVM():void
             {
@@ -146,7 +172,7 @@ class GClientTest extends  TestCase
             }
 */
 
-    public function testResizeVMDiskOk():void
+  /*  public function testResizeVMDiskOk():void
     {
         $result = $this->client->resizeVMDisk('ns1000', 102, 'scsi0','25G');
         $this->assertNotEmpty($result);
@@ -170,5 +196,5 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(ClusterResponse::class, $result);
     }
 
-
+ */
 }

@@ -70,7 +70,6 @@ final class CreateVMinNode extends  GClientBase
             return new VmsResponse(...array_map($this->toResponse(), (array)$getContent));
         }catch (PostRequestException $e ){
             if ($e->getCode()===500) throw new VmErrorCreate($e->getMessage());
-            var_dump($e->getMessage());
             return throw new VmErrorCreate("Error in create VM");
         }
 
