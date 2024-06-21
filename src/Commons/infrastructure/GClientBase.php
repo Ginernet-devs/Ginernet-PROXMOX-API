@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Ginernet\Proxmox\Commons\infrastructure;
 
+use Ginernet\Proxmox\Commons\Domain\Exceptions\DeleteRequestException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PostRequestException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PutRequestException;
 use GuzzleHttp\Client;
@@ -94,6 +95,28 @@ abstract class GClientBase
             if ($ex->getCode() === 0) throw new HostUnreachableException();
             if ($ex->getCode() === 401) throw new AuthFailedException();
             throw new PutRequestException($ex->getMessage());
+        }
+    }
+
+    protected function Delete(string $request, array $params=[]):?ResponseInterface
+    {
+        try{
+            if ($this->cookies->getCookies() === null) throw new AuthFailedException();
+            $result= $this->client->request('DELETE', $this->connection->getUri().$request,[
+                'https_errors' => false,
+                'verify'=> false,
+                'headers'=>array_merge($this->defaultHeaders,['CSRFPreventionToken'=>$this->cookies->getCSRFPreventionToken()]),
+                'query' =>$params,
+                'exceptions'=>false,
+                'cookies'=>$this->cookies->getCookies(),
+            ]);
+            if ($result->getStatusCode()==401) throw new AuthFailedException();
+            if ($result->getStatusCode() === 0) throw new HostUnreachableException();
+            return $result;
+        }catch (GuzzleException $ex){
+            if ($ex->getCode() === 0) throw new HostUnreachableException();
+            if ($ex->getCode() === 401) throw new AuthFailedException();
+            throw new DeleteRequestException($ex->getMessage());
         }
     }
 

@@ -28,12 +28,16 @@ use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
 use Ginernet\Proxmox\VM\App\Service\CreateConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
+use Ginernet\Proxmox\VM\App\Service\DeleteVMinNode;
 use Ginernet\Proxmox\VM\App\Service\GetConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\ResizeVMDisk;
 use Ginernet\Proxmox\VM\App\Service\StartVMinNode;
+use Ginernet\Proxmox\VM\App\Service\StopVMinNode;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
 use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
 use Ginernet\Proxmox\VM\Domain\Model\EfiModel;
 use Ginernet\Proxmox\VM\Domain\Model\IpModel;
@@ -43,7 +47,6 @@ use Ginernet\Proxmox\VM\Domain\Model\storage\ScsiModel;
 use Ginernet\Proxmox\VM\Domain\Model\storage\SataModel;
 use Ginernet\Proxmox\VM\Domain\Model\storage\VirtioModel;
 use Ginernet\Proxmox\VM\Domain\Model\UserModel;
-use Ginernet\Proxmox\VM\Domain\Responses\VmResponse;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 
 /**
@@ -270,6 +273,11 @@ class GClient
         }
     }
 
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @return array|AuthFailedException|null
+     */
     public function getConfigVM(string $node, int $vmid)
     {
         try{
@@ -284,14 +292,19 @@ class GClient
         }
     }
 
-    public function startConfigVM(string $node, int $vmid):string|AuthFailedException|HostUnreachableException|VmErrorStart
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @return string|AuthFailedException|HostUnreachableException|VmErrorStart
+     */
+    public function startVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorStart
     {
         try{
             if (!isset($this->cookiesPVE)){
                 return new AuthFailedException("Auth failed!!!");
             };
             $getConfigVM =new StartVMinNode($this->connection, $this->cookiesPVE);
-            return  $getConfigVM($node, $vmid);
+            return  $getConfigVM($node, $vmId);
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
@@ -299,6 +312,42 @@ class GClient
             return new HostUnreachableException($ex);
         }catch (VmErrorStart $ex){
             return new VmErrorStart($ex->getMessage());
+        }
+    }
+
+    public function stopVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorStop
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $getConfigVM =new StopVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmId);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        }catch (VmErrorStart $ex){
+            return new VmErrorStop($ex->getMessage());
+        }
+    }
+
+    public function deleteVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorDestroy
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $deleteVMinNode =new DeleteVMinNode($this->connection, $this->cookiesPVE);
+            return  $deleteVMinNode($node, $vmId);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        } catch (VmErrorDestroy $ex) {
+            return new VmErrorDestroy($ex->getMessage());
         }
     }
 

@@ -10,6 +10,7 @@ use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use PHPUnit\Framework\TestCase;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
@@ -45,7 +46,7 @@ class GClientTest extends  TestCase
     public function testLoginClientUserNameKO():void
     {
 
-            $client = new GClient($_ENV['HOST_CLUSTER'], 'root', $_ENV['PASSWORD'], $_ENV['REALM']);
+            $client = new GClient($_ENV['HOST_CLUSTER'], 'DDEfed', $_ENV['PASSWORD'], $_ENV['REALM']);
             $result = $client->login();
             $this->assertInstanceOf(AuthFailedException::class, $result);
             $this->assertEquals(401, $result->getCode());
@@ -94,13 +95,13 @@ class GClientTest extends  TestCase
 
     }
 
-    public  function testGetNeworkFromNodeOK():void
+    public  function testGetNetworkFromNodeOK():void
     {
         $result = $this->client->GetNetworksFromNode("ns1000");
         $this->assertInstanceOf(NetworksResponse::class, $result);
     }
 
-    public  function testGetNeworkFromNodeKO():void
+    public  function testGetNetworkFromNodeKO():void
     {
         $result = $this->client->GetNetworksFromNode("test");
         $this->assertInstanceOf(NetworksNotFound::class, $result);
@@ -108,21 +109,21 @@ class GClientTest extends  TestCase
 
     public function testGetCpusFromNodeOK():void
     {
-        $result = $this->client->GetCpusFromNode("ns1000");
+        $result = $this->client->GetCpusFromNode("ns1047");
         $this->assertInstanceOf(CpusResponse::class, $result);
     }
 
 
-   /* public  function testGetCpusFromNodeKO():void
+    public  function testGetCpusFromNodeKO():void
     {
         $result = $this->client->GetCpusFromNode("t");
         var_dump($result);
-        $this->assertInstanceOf(CpuNotFound::class, $result);
+       $this->assertInstanceOf(CpuNotFound::class, $result);
     }
-    */
 
 
-    /*public function testCreateVMOk():void
+
+    public function testCreateVMOk():void
     {
         $result =$this->client->createVM('ns1047', 101,2,'hostname', 0, 'virtio',
             'vmbr0',1,true, 'virtio-scsi-pci', 'SCSI',0, 'nvme', 'on','directsync','/mnt/pve/nfs-iso/gcp-images/Debian-12-x86_64-GridCP-PVE_KVM-20240610.qcow2',
@@ -133,14 +134,13 @@ class GClientTest extends  TestCase
     }
     public function testCreateVMError():void
     {
-
-        $result = $this->client->createVM('ns1047', 100, 2, 'ho', 0, 'virtio',
-            'vmbr0',1, true, 'virtio-scsi-pci', 0, 0, 'on', 'directsync', '/mnt/pve/nfs-iso/gcp-images/Debian-12-x86_64-GridCP-PVE_KVM-20240610.qcow2',
-            'deb12',0, 'nvme', 'scsi0', 'scsi0', '1', 0,'5.134.113.50/24','5.134.113.1','root','password','x86-64-v2-AES', 4096, 0 ,null,
-            null,null, null,null);
+        $result = $this->client->createVM('ns1047', 115,2,'hostname', 0, 'virtio',
+            'vmbr0',1,true, 'virtio-scsi-pci', 'SCSI',0, 'nvme', 'on','directsync','/mnt/pve/nfs-iso/gcp-images/Debian-12-x86_64-GridCP-PVE_KVM-20240610.qcow2',
+            'deb12',0, 'nvme','scsi0', 1,0,'5.134.113.50/24','5.134.113.1','root', 'password', 'x86-64-v2-AES', 4096,0,
+            'l26' ,'ovmf','pc-q35-8-1', 'nvme',1);
         $this->assertInstanceOf(VmErrorCreate::class, $result);
     }
-*/
+
 
     public  function testGetVMConfiguration():void
     {
@@ -148,29 +148,49 @@ class GClientTest extends  TestCase
         $this->assertNotEmpty($result);
     }
 
-    public  function testStartVMConfigurationOK():void
+    public  function testStartVMOK():void
     {
-        $result = $this->client->startConfigVM('ns1047',101);
+        $result = $this->client->startVM('ns1047',101);
           $this->assertNotEmpty($result);
     }
 
-    public  function testStartVMConfigurationNodeErrorKO():void
+    public  function testStartVMErrorKO():void
     {
-        $result = $this->client->startConfigVM('nsxxx',101);
+        $result = $this->client->startVM('nsxxx',101);
         $this->assertInstanceOf(VmErrorStart::class, $result);
     }
 
-    public  function testStartVMConfigurationVmidErrorKO():void   {
-        $result = $this->client->startConfigVM('ns1047',0);
+    public  function testStartVMVmIdErrorKO():void   {
+        $result = $this->client->startVM('ns1047',0);
         $this->assertInstanceOf(VmErrorStart::class, $result);
     }
 
 
-       /*    public function testConfigVM():void
-            {
-                $this->client->configVM('ns1000',102,0,'on','directsync','/image/images/000/Debian-12-x86_64-GridCP-PVE_KVM-20231012.qcow2');
-            }
-*/
+    public  function testStopVMOK():void
+    {
+        $result = $this->client->stopVM('ns1047',101);
+        $this->assertNotEmpty($result);
+    }
+
+    public  function testStopVMErrorKO():void
+    {
+        $result = $this->client->stopVM('nsxxx',108);
+        $this->assertInstanceOf(VmErrorStop::class, $result);
+    }
+
+    public  function testStopVMVmIdErrorKO():void   {
+        $result = $this->client->stopVM('ns1047',0);
+        $this->assertInstanceOf(VmErrorStop::class, $result);
+    }
+
+
+    public  function testDeleteVMOK():void
+    {
+        $result = $this->client->deleteVM('ns1047',101);
+        var_dump($result);
+        $this->assertNotEmpty($result);
+    }
+
 
   /*  public function testResizeVMDiskOk():void
     {
