@@ -315,6 +315,12 @@ class GClient
         }
     }
 
+    /**
+     * @param string $node
+     * @param int $vmId
+     * @return string|AuthFailedException|HostUnreachableException|VmErrorStop
+     * @throws VmErrorStop
+     */
     public function stopVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorStop
     {
         try{
@@ -333,6 +339,11 @@ class GClient
         }
     }
 
+    /**
+     * @param string $node
+     * @param int $vmId
+     * @return string|AuthFailedException|HostUnreachableException|VmErrorDestroy
+     */
     public function deleteVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorDestroy
     {
         try{
