@@ -8,7 +8,7 @@ use Ginernet\Proxmox\Commons\Domain\Exceptions\PutRequestException;
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 
-final class ConfigVMinNode extends  GClientBase
+final class CreateConfigVMinNode extends  GClientBase
 {
     public function __construct(Connection $connection, CookiesPVE $cookiesPVE)
     {

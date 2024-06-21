@@ -26,11 +26,18 @@ use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
 use Ginernet\Proxmox\Storages\App\Service\GetStoragesFromNode;
 use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
-use Ginernet\Proxmox\VM\App\Service\ConfigVMinNode;
+use Ginernet\Proxmox\VM\App\Service\CreateConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
+use Ginernet\Proxmox\VM\App\Service\DeleteVMinNode;
+use Ginernet\Proxmox\VM\App\Service\GetConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\ResizeVMDisk;
+use Ginernet\Proxmox\VM\App\Service\StartVMinNode;
+use Ginernet\Proxmox\VM\App\Service\StopVMinNode;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
 use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
 use Ginernet\Proxmox\VM\Domain\Model\EfiModel;
 use Ginernet\Proxmox\VM\Domain\Model\IpModel;
@@ -249,13 +256,13 @@ class GClient
      * @param string|null $import
      * @return string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
      */
-    public function configVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
+    public function createConfigVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
     {
         try{
             if (!isset($this->cookiesPVE)){
                 return new AuthFailedException("Auth failed!!!");
             };
-            $configVM = new ConfigVMinNode($this->connection, $this->cookiesPVE);
+            $configVM = new CreateConfigVMinNode($this->connection, $this->cookiesPVE);
             return $configVM($node,$vmid,0, $discard, $cache,$import);
         }catch (AuthFailedException $ex){
             return new AuthFailedException($ex);
@@ -263,6 +270,84 @@ class GClient
             return new HostUnreachableException($ex);
         }catch (ResizeVMDiskException $ex){
             return new ResizeVMDiskException($ex->getMessage());
+        }
+    }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @return array|AuthFailedException|null
+     */
+    public function getConfigVM(string $node, int $vmid)
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $getConfigVM =new GetConfigVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmid);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }
+    }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @return string|AuthFailedException|HostUnreachableException|VmErrorStart
+     */
+    public function startVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorStart
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $getConfigVM =new StartVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmId);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        }catch (VmErrorStart $ex){
+            return new VmErrorStart($ex->getMessage());
+        }
+    }
+
+    public function stopVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorStop
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $getConfigVM =new StopVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmId);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        }catch (VmErrorStart $ex){
+            return new VmErrorStop($ex->getMessage());
+        }
+    }
+
+    public function deleteVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorDestroy
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $deleteVMinNode =new DeleteVMinNode($this->connection, $this->cookiesPVE);
+            return  $deleteVMinNode($node, $vmId);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        } catch (VmErrorDestroy $ex) {
+            return new VmErrorDestroy($ex->getMessage());
         }
     }
 
