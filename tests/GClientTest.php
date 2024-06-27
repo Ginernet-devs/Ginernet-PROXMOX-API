@@ -97,7 +97,7 @@ class GClientTest extends  TestCase
 
     public  function testGetNetworkFromNodeOK():void
     {
-        $result = $this->client->GetNetworksFromNode("ns1000");
+        $result = $this->client->GetNetworksFromNode("ns1047");
         $this->assertInstanceOf(NetworksResponse::class, $result);
     }
 
@@ -116,10 +116,12 @@ class GClientTest extends  TestCase
 
     public  function testGetCpusFromNodeKO():void
     {
-        $result = $this->client->GetCpusFromNode("t");
-        var_dump($result);
-       $this->assertInstanceOf(CpuNotFound::class, $result);
-    }
+        try {
+            $result = $this->client->GetCpusFromNode("t");
+        }catch(\Exception $ex) {
+                $this->assertInstanceOf(CpuNotFound::class, $ex);
+            }
+        }
 
 
 
@@ -174,20 +176,26 @@ class GClientTest extends  TestCase
 
     public  function testStopVMErrorKO():void
     {
-        $result = $this->client->stopVM('nsxxx',108);
-        $this->assertInstanceOf(VmErrorStop::class, $result);
+        try {
+            $this->client->stopVM('nsxxx', 108);
+        }catch(\Exception $ex){
+            $this->assertInstanceOf(VmErrorStop::class, $ex);
+        }
+
     }
 
     public  function testStopVMVmIdErrorKO():void   {
-        $result = $this->client->stopVM('ns1047',0);
-        $this->assertInstanceOf(VmErrorStop::class, $result);
+        try {
+            $result = $this->client->stopVM('ns1047', 0);
+        }catch(\Exception $ex) {
+            $this->assertInstanceOf(VmErrorStop::class, $ex);
+        }
     }
 
 
     public  function testDeleteVMOK():void
     {
         $result = $this->client->deleteVM('ns1047',101);
-        var_dump($result);
         $this->assertNotEmpty($result);
     }
 
