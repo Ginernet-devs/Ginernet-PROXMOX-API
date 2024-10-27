@@ -43,7 +43,7 @@ final class GetNetworksFromNode extends GClientBase
             (array_key_exists('bridge_fd', $result))?$result['bridge_fd']:"",
             array_key_exists('active', $result) && $result['active'] === 1,
             (array_key_exists('iface', $result))?$result['iface']:null,
-            (array_key_exists('priority', $result))?$result['priority']:null,
+            (array_key_exists('priority', $result))?$result['priority']:0,
             (array_key_exists('type',$result))?$result['type']:null,
             (array_key_exists('autostart', $result)) && $result['autostart'] === 1,
             (array_key_exists('method6', $result))?$result['method6']:"",

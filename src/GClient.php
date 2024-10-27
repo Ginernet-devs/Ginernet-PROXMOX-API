@@ -28,6 +28,7 @@ use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
 use Ginernet\Proxmox\VM\App\Service\CreateConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
+use Ginernet\Proxmox\VM\App\Service\CreateVncProxy;
 use Ginernet\Proxmox\VM\App\Service\DeleteVMinNode;
 use Ginernet\Proxmox\VM\App\Service\GetConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\ResizeVMDisk;
@@ -38,6 +39,7 @@ use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VncProxyError;
 use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
 use Ginernet\Proxmox\VM\Domain\Model\EfiModel;
 use Ginernet\Proxmox\VM\Domain\Model\IpModel;
@@ -48,6 +50,7 @@ use Ginernet\Proxmox\VM\Domain\Model\storage\SataModel;
 use Ginernet\Proxmox\VM\Domain\Model\storage\VirtioModel;
 use Ginernet\Proxmox\VM\Domain\Model\UserModel;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
+use Ginernet\Proxmox\VM\Domain\Responses\VncResponse;
 
 /**
  *
@@ -429,5 +432,15 @@ class GClient
         }
 
     }
-
+    public function createVncProxy(string $node, int $vmid):VncResponse|AuthFailedException|VncProxyError{
+        try{
+            if(!isset($this->cookiesPVE)){
+                return new AuthFailedException('Auth failed !!!');
+            };
+            $vncProxy = new CreateVncProxy($this->connection, $this->cookiesPVE);
+             return $vncProxy($node, $vmid);
+        }catch(VncProxyError $ex){
+            return new VncProxyError($ex->getMessage());
+        }
+      }
 }
