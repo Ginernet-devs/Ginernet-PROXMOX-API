@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Ginernet\Proxmox\Commons\infrastructure;
 
 use Ginernet\Proxmox\Commons\Domain\Exceptions\DeleteRequestException;
+use Ginernet\Proxmox\Commons\Domain\Exceptions\GetRequestException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PostRequestException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PutRequestException;
 use GuzzleHttp\Client;
@@ -50,9 +51,8 @@ abstract class GClientBase
        }catch (GuzzleException $ex){
            if ($ex->getCode() === 0) throw new HostUnreachableException();
            if ($ex->getCode() === 401) throw new AuthFailedException();
+           throw new GetRequestException($ex->getMessage());
        }
-       return null;
-
     }
 
     protected function Post(string $request, array $requestBody): ?ResponseInterface

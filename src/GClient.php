@@ -29,6 +29,7 @@ use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
 use Ginernet\Proxmox\VM\App\Service\CreateConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
 use Ginernet\Proxmox\VM\App\Service\CreateVncProxy;
+use Ginernet\Proxmox\VM\App\Service\CreateVncWebSocket;
 use Ginernet\Proxmox\VM\App\Service\DeleteVMinNode;
 use Ginernet\Proxmox\VM\App\Service\GetConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\ResizeVMDisk;
@@ -40,6 +41,7 @@ use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VncProxyError;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VncWebSocketError;
 use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
 use Ginernet\Proxmox\VM\Domain\Model\EfiModel;
 use Ginernet\Proxmox\VM\Domain\Model\IpModel;
@@ -432,6 +434,12 @@ class GClient
         }
 
     }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @return VncResponse|AuthFailedException|VncProxyError
+     */
     public function createVncProxy(string $node, int $vmid):VncResponse|AuthFailedException|VncProxyError{
         try{
             if(!isset($this->cookiesPVE)){
@@ -443,4 +451,19 @@ class GClient
             return new VncProxyError($ex->getMessage());
         }
       }
+
+
+     public function createVncWebSocket(string $node, int $vmid, int $port, string $vncticket){
+         try {
+             if (!isset($this->cookiesPVE)) {
+                 return new AuthFailedException('Auth failed !!!');
+             };
+             $vncWebSocket = new CreateVncWebSocket($this->connection, $this->cookiesPVE);
+             $result = $vncWebSocket($node, $vmid, $port, $vncticket);
+             return $result;
+
+         }catch(VncWebSocketError $ex){
+             return new VncWebSocketError($ex->getMessage());
+         }
+     }
 }

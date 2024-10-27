@@ -7,8 +7,6 @@ use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PostRequestException;
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VncProxyError;
-use Ginernet\Proxmox\VM\Domain\Responses\VmResponse;
-use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use Ginernet\Proxmox\VM\Domain\Responses\VncResponse;
 
 final class  CreateVncProxy extends GClientBase
@@ -30,7 +28,7 @@ final class  CreateVncProxy extends GClientBase
             return $this->toResponse(json_decode($result->getBody()->getContents(),true));
         }catch (PostRequestException $e ){
                 if ($e->getCode()===500) throw new VncProxyError($e->getMessage());
-                return throw new VncProxyError("Error in create VM");
+                return throw new VncProxyError("Error in create VM ->".$e->getMessage());
 
         }
     }
