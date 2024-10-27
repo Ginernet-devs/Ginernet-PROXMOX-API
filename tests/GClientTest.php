@@ -12,6 +12,7 @@ use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VncProxyError;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VncWebSocketError;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use Ginernet\Proxmox\VM\Domain\Responses\VncResponse;
 use PHPUnit\Framework\TestCase;
@@ -239,6 +240,18 @@ class GClientTest extends  TestCase
     public function testCreateVncproxyKO():void{
         $result =$this->client->createVncProxy("ns1047",118);
         $this->assertInstanceOf(VncProxyError::class, $result);
+    }
+
+    public function testCreateVncWebSocketOk():void{
+        $resultProxy =$this->client->createVncProxy("ns1047",101);
+        $result = $this->client->createVncWebSocket("ns1047",101, (int) $resultProxy->getPort(),$resultProxy->getTicket() );
+        $this->assertNotEmpty( $result);
+    }
+
+    public function testCreateVncWebSocketKo():void{
+        $resultProxy =$this->client->createVncProxy("ns1047",1010);
+        $result = $this->client->createVncWebSocket("ns1047",101, (int) $resultProxy->getPort(),$resultProxy->getTicket() );
+        $this->assertInstanceOf(VncWebSocketError::class, $result);
     }
 
     //// TESTING CLUSTER
