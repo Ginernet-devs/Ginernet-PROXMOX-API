@@ -11,7 +11,9 @@ use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VncProxyError;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
+use Ginernet\Proxmox\VM\Domain\Responses\VncResponse;
 use PHPUnit\Framework\TestCase;
 use Ginernet\Proxmox\Auth\Domain\Responses\LoginResponse;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
@@ -34,10 +36,12 @@ class GClientTest extends  TestCase
     public function setUp():void{
         $this->client = new GClient($_ENV['HOST'],$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
         $this->auth = $this->client->login();
-        $this->clientCluster = new GClient($_ENV['HOST_CLUSTER'], $_ENV['USERNAME_CLUSTER'], $_ENV['PASSWORD_CLUSTER'], $_ENV['REALM_CLUSTER']);
-        $this->authCLuster = $this->clientCluster->login();
+     //   $this->clientCluster = new GClient($_ENV['HOST_CLUSTER'], $_ENV['USERNAME_CLUSTER'], $_ENV['PASSWORD_CLUSTER'], $_ENV['REALM_CLUSTER']);
+      //  $this->authCLuster = $this->clientCluster->login();
     }
 
+
+    //// TESTING LOGIN
     public function testLoginClientOk():void
     {
         $this->assertInstanceOf(LoginResponse::class, $this->auth);
@@ -68,19 +72,22 @@ class GClientTest extends  TestCase
         $this->assertEquals(401, $result->getCode());
     }
 
-    public function testLoginClientHOSTKO():void
+     public function testLoginClientHOSTKO():void
     {
         $client = new GClient('bbbb',$_ENV['USERNAME'],$_ENV['PASSWORD'],$_ENV['REALM']);
         $result = $client->login();
         $this->assertInstanceOf(HostUnreachableException::class, $result);
     }
 
+    //// TESTING NODES.
     public function testGetNodesOK():void
     {
         $result = $this->client->GetNodes();
         $this->assertInstanceOf(NodesResponse::class, $result);
     }
 
+
+    //// TESTING STORAGES
     public function testGetStoragesFromNodeOK():void
     {
         $result = $this->client->GetStoragesFromNode("ns1047");
@@ -88,13 +95,16 @@ class GClientTest extends  TestCase
     }
 
 
-        public function testGetStoragesFromNodeKO():void
+    public function testGetStoragesFromNodeKO():void
     {
         $result = $this->client->GetStoragesFromNode("test");
         $this->assertInstanceOf(StoragesNotFound::class, $result);
 
     }
 
+
+
+    //// TESTING NETWORKS.
     public  function testGetNetworkFromNodeOK():void
     {
         $result = $this->client->GetNetworksFromNode("ns1047");
@@ -107,6 +117,8 @@ class GClientTest extends  TestCase
         $this->assertInstanceOf(NetworksNotFound::class, $result);
     }
 
+
+    //// TESTING CPUS
     public function testGetCpusFromNodeOK():void
     {
         $result = $this->client->GetCpusFromNode("ns1047");
@@ -124,11 +136,11 @@ class GClientTest extends  TestCase
         }
 
 
-
+    //// TESTING VM
     public function testCreateVMOk():void
     {
-        $result =$this->client->createVM('ns1047', 101,2,'hostname', 0, 'virtio',
-            'vmbr0',1,true, 'virtio-scsi-pci', 'SCSI',0, 'nvme', 'on','directsync','/mnt/pve/nfs-iso/gcp-images/Debian-12-x86_64-GridCP-PVE_KVM-20240610.qcow2',
+        $result =$this->client->createVM('ns1047', 102,2,'hostname', 0, 'virtio',
+            'vmbr0',1,true, 'virtio-scsi-pci', 'SCSI',0, 'nvme', 'on','directsync','/mnt/pve/nfs-iso/gcp-images/AlmaLinux-8.6_x86_64-minimal.iso',
             'deb12',0, 'nvme','scsi0', 1,0,'5.134.113.50/24','5.134.113.1','root', 'password', 'x86-64-v2-AES', 4096,0,
             'l26' ,'ovmf','pc-q35-8-1', 'nvme',1);
         $this->assertInstanceOf(VmsResponse::class, $result);
@@ -144,21 +156,24 @@ class GClientTest extends  TestCase
     }
 
 
+    //// TESTING CONFIGURATION
     public  function testGetVMConfiguration():void
     {
-        $result = $this->client->getConfigVM('ns1047',101);
+        $result = $this->client->getConfigVM('ns1047',102);
         $this->assertNotEmpty($result);
     }
 
+
+    //// TEST START VM
     public  function testStartVMOK():void
     {
-        $result = $this->client->startVM('ns1047',101);
+        $result = $this->client->startVM('ns1047',102);
           $this->assertNotEmpty($result);
     }
 
     public  function testStartVMErrorKO():void
     {
-        $result = $this->client->startVM('nsxxx',101);
+        $result = $this->client->startVM('nsxxx',102);
         $this->assertInstanceOf(VmErrorStart::class, $result);
     }
 
@@ -168,9 +183,11 @@ class GClientTest extends  TestCase
     }
 
 
+
+    //// TEST STOP VM
     public  function testStopVMOK():void
     {
-        $result = $this->client->stopVM('ns1047',101);
+        $result = $this->client->stopVM('ns1047',102);
         $this->assertNotEmpty($result);
     }
 
@@ -192,17 +209,11 @@ class GClientTest extends  TestCase
         }
     }
 
+    //// TEST RESIZE VM DISK
 
-    public  function testDeleteVMOK():void
+    public function testResizeVMDiskOk():void
     {
-        $result = $this->client->deleteVM('ns1047',101);
-        $this->assertNotEmpty($result);
-    }
-
-
-  /*  public function testResizeVMDiskOk():void
-    {
-        $result = $this->client->resizeVMDisk('ns1000', 102, 'scsi0','25G');
+        $result = $this->client->resizeVMDisk('ns1047', 102, 'scsi0','25G');
         $this->assertNotEmpty($result);
     }
 
@@ -212,7 +223,26 @@ class GClientTest extends  TestCase
         $this->assertNotEmpty( $result);
     }
 
-    public function testVersion():void
+    //// TEST DELETE VM
+    public  function testDeleteVMOK():void
+    {
+        $result = $this->client->deleteVM('ns1047',102);
+        $this->assertNotEmpty($result);
+    }
+
+    /// TEST VNC PROXY
+    public function testCreateVncproxyOk():void{
+        $result =$this->client->createVncProxy("ns1047",101);
+        $this->assertInstanceOf(VncResponse::class, $result);
+    }
+
+    public function testCreateVncproxyKO():void{
+        $result =$this->client->createVncProxy("ns1047",118);
+        $this->assertInstanceOf(VncProxyError::class, $result);
+    }
+
+    //// TESTING CLUSTER
+   /* public function testVersion():void
     {
         $result = $this->client->getVersion();
         $this->assertInstanceOf(VersionResponse::class, $result);
@@ -222,7 +252,5 @@ class GClientTest extends  TestCase
     {
         $result = $this->clientCluster->getClusterStatus();
         $this->assertInstanceOf(ClusterResponse::class, $result);
-    }
-
- */
+    }*/
 }
