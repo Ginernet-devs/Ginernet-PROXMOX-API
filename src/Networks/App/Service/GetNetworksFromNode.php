@@ -26,7 +26,7 @@ final class GetNetworksFromNode extends GClientBase
     public function __invoke(string $node):?NetworksResponse
     {
         try {
-            $result = $this->Get("/nodes/" . $node . "/network", []);
+            $result = $this->Get("nodes/" . $node . "/network", []);
             if (empty($result)) throw new NetworksNotFound();
             return new NetworksResponse(...array_map($this->toResponse(), $result));
         }catch (GuzzleException $ex){

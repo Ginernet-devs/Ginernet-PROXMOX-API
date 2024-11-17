@@ -28,7 +28,7 @@ final class GetStoragesFromNode  extends GClientBase
     public function __invoke(string $node):?StoragesResponse
     {
         try {
-            $result = $this->Get("/nodes/".$node."/Storage", []);
+            $result = $this->Get("nodes/".$node."/storage", []);
             if (empty($result)) throw new StoragesNotFound();
             return  new StoragesResponse(...array_map($this->toResponse(), $result));
         }catch(GuzzleException $ex){

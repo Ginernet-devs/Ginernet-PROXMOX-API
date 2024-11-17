@@ -24,7 +24,7 @@ final class  CreateVncProxy extends GClientBase
             "generate-password"=>true,
              "websocket"=>true
             ];
-            $result = $this->Post("/nodes/" . $node . "/qemu/" . $vmid.'/vncproxy',$body);
+            $result = $this->Post("nodes/" . $node . "/qemu/" . $vmid.'/vncproxy',$body);
             return $this->toResponse(json_decode($result->getBody()->getContents(),true));
         }catch (PostRequestException $e ){
                 if ($e->getCode()===500) throw new VncProxyError($e->getMessage());

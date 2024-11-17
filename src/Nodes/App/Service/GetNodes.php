@@ -27,7 +27,7 @@ final class GetNodes extends GClientBase
     public function __invoke():?NodesResponse
     {
         try {
-            $result = $this->Get("/nodes", []);
+            $result = $this->Get("nodes", []);
             return new NodesResponse(...array_map($this->toResponse(), $result));
         }catch(GuzzleException $ex){
             if ($ex->getCode() === 401) throw new AuthFailedException();

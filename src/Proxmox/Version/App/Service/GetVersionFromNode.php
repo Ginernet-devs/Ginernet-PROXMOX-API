@@ -28,7 +28,7 @@ final class GetVersionFromNode extends GClientBase
     public function __invoke():?VersionResponse
     {
         try {
-            $result = $this->Get("/version", []);
+            $result = $this->Get("version", []);
             if(empty($result)) throw new VersionError("Error in get Version");
             return  $this->toResponse($result);
         }catch (GuzzleException $ex){
