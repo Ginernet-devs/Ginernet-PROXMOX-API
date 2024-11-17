@@ -26,7 +26,7 @@ final class GetCpuFromNode extends GClientBase
     public function __invoke(string $node):?CpusResponse
     {
         try {
-            $result = $this->Get("/nodes/" . $node . "/capabilities/qemu/cpu", []);
+            $result = $this->Get("nodes/" . $node . "/capabilities/qemu/cpu", []);
             if (empty($result)) throw new CpuNotFound();
             return new CpusResponse(...array_map($this->toResponse(), $result));
         }catch (GuzzleException $ex){

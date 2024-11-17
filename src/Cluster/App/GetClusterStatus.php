@@ -27,7 +27,7 @@ final class GetClusterStatus extends GClientBase
     public function __invoke()
     {
         try {
-            $result = $this->Get("/cluster/status", []);
+            $result = $this->Get("cluster/status", []);
             if (empty($result)) throw new ClusterNotFound();
             $cluster = $result[0];
             $nodeCluster = array_slice($result, 0);

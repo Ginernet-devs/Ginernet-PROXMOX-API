@@ -23,7 +23,7 @@ final class CreateVncWebSocket extends GClientBase
                 'port' => $port,
                 'vncticket' => $vncTicket
             ];
-            return $this->Get("/nodes/" . $node . "/qemu/" . $vmid . "/vncwebsocket", $params);
+            return $this->Get("nodes/" . $node . "/qemu/" . $vmid . "/vncwebsocket", $params);
         }catch(GetRequestException $e){
             if ($e->getCode()===500) throw new VncWebSocketError( $e->getMessage());
             return throw new VncWebSocketError("Error in create VncWebSocketError ->".$e->getMessage());
