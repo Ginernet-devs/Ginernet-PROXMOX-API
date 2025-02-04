@@ -219,25 +219,35 @@ class GClient
      * @param string|null $vmCpuType
      * @param int|null $vmMemory
      * @param int|null $vmMemoryBallon
+     * @param string|null $vmOsType
+     * @param string|null $vmBios
+     * @param string|null $vmMachinePc
+     * @param string|null $vmEfiStorage
+     * @param int|null $vmEfiKey
+     * @param string|null $efidisckNvme
+     * @param string|null $efidisckEnrroled
+     * @param string|null $tpmstateNvme
+     * @param string|null $tpmstateVersion
+     * @param string $soBuild
      * @return VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
      */
 
 
 
      public function createVM(
-                              string  $nodeName, int $vmId, ?int $vmCpuCores, ?string $vmName, ?int $vmNetId,
-                              ?string $vmNetModel, ?string $vmNetBridge, ?int $vmNetFirewall, ?bool $vmOnBoot,
-                              ?string $vmScsiHw, ?string $vmDiskType, ?int    $vmDiskId, ?string $vmDiskStorage,
-                              ?string $vmDiskDiscard, ?string $vmDiskCache, ?string $vmDiskImportFrom, ?string $vmTags,
-                              ?int    $vmCloudInitIdeId = null, ?string $vmCloudInitStorage, ?string $vmBootOrder, ?int $vmAgent,
-                              ?int    $vmNetNetId, ?string $vmNetIp, ?string $vmNetGw, ?string $vmOsUserName,
-                              ?string $vmOsPassword, ?string $vmCpuType, ?int $vmMemory = null, ?int $vmMemoryBallon = null,
-                              ?string $vmOsType = null,?string $vmBios = null,?string $vmMachinePc = null,
-                              ?string $vmEfiStorage = null, ?int $vmEfiKey = null,
-                              ?string $efidisckNvme = null, ?string $efidisckEnrroled = null,
-                              ?string $tpmstateNvme = null, ?string $tpmstateVersion = null,
-                              ?string $soBuild = 'Deb12'
-                            )
+        string  $nodeName, int $vmId, ?int $vmCpuCores, ?string $vmName, ?int $vmNetId,
+        ?string $vmNetModel, ?string $vmNetBridge, ?int $vmNetFirewall, ?bool $vmOnBoot,
+        ?string $vmScsiHw, ?string $vmDiskType, ?int    $vmDiskId, ?string $vmDiskStorage,
+        ?string $vmDiskDiscard, ?string $vmDiskCache, ?string $vmDiskImportFrom, ?string $vmTags,
+        ?int    $vmCloudInitIdeId, ?string $vmCloudInitStorage, ?string $vmBootOrder, ?int $vmAgent,
+        ?int    $vmNetNetId, ?string $vmNetIp, ?string $vmNetGw, ?string $vmOsUserName,
+        ?string $vmOsPassword, ?string $vmCpuType, ?int $vmMemory = null, ?int $vmMemoryBallon = null,
+        ?string $vmOsType = null,?string $vmBios = null,?string $vmMachinePc = null,
+        ?string $vmEfiStorage = null, ?int $vmEfiKey = null,
+        ?string $efidisckNvme = null, ?string $efidisckEnrroled = null,
+        ?string $tpmstateNvme = null, ?string $tpmstateVersion = null,
+        ?string $soBuild = 'Deb12'
+      )
     {
         try {
 
