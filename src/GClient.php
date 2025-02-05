@@ -45,6 +45,7 @@ use Ginernet\Proxmox\VM\App\Service\ShutdownVMNode;
 use Ginernet\Proxmox\VM\App\Service\StartVMinNode;
 use Ginernet\Proxmox\VM\App\Service\StopVMinNode;
 use Ginernet\Proxmox\VM\Domain\Exceptions\CapbilitiesMachineException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetConfigVMException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
@@ -293,8 +294,8 @@ class GClient
             return new AuthFailedException($ex);
         }catch(HostUnreachableException $ex) {
             return new HostUnreachableException($ex);
-        }catch (ResizeVMDiskException $ex){
-            return new ResizeVMDiskException($ex->getMessage());
+        }catch (GetConfigVMException $ex){
+            return new GetConfigVMException($ex->getMessage());
         }
     }
 
