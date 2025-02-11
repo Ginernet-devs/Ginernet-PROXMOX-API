@@ -44,9 +44,16 @@ use Ginernet\Proxmox\VM\App\Service\SetConfigVMinNode;
 use Ginernet\Proxmox\VM\App\Service\ShutdownVMNode;
 use Ginernet\Proxmox\VM\App\Service\StartVMinNode;
 use Ginernet\Proxmox\VM\App\Service\StopVMinNode;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentExecStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentExecVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentFileWriteVMException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\CapbilitiesMachineException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\GetConfigVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetTaskStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\PingVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\ShutdownException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorReset;
@@ -319,6 +326,8 @@ class GClient
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
+        }catch (AgentExecVMException $ex){
+            return new AgentExecVMException($ex->getMessage());
         }
 
     }
@@ -342,7 +351,10 @@ class GClient
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
+        }catch (AgentFileWriteVMException $ex){
+            return new AgentFileWriteVMException($ex->getMessage());
         }
+
     }
 
     /**
@@ -363,6 +375,8 @@ class GClient
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
+        }catch (AgentExecStatusVMException $ex){
+            return new AgentExecStatusVMException($ex->getMessage());
         }
     }
 
@@ -382,11 +396,11 @@ class GClient
 
             return  $pingVM($node, $vmid);
 
-        }catch(AuthFailedException $ex)
-        {
+        }catch(AuthFailedException $ex) {
             return new AuthFailedException($ex);
+        }catch (PingVMDiskException $ex){
+            return new PingVMDiskException($ex->getMessage());
         }
-
     }
 
     /**
@@ -406,6 +420,8 @@ class GClient
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
+        }catch (GetTaskStatusVMException $ex){
+            return new GetTaskStatusVMException($ex->getMessage());
         }
     }
 
@@ -427,6 +443,8 @@ class GClient
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
+        } catch (GetConfigVMException $ex){
+            return new GetConfigVMException($ex->getMessage());
         }
     }
 
@@ -447,6 +465,8 @@ class GClient
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
+        } catch (GetStatusVMException $ex){
+            return new GetStatusVMException($ex->getMessage());
         }
     }
 
@@ -540,8 +560,8 @@ class GClient
             return new AuthFailedException($ex);
         }catch(HostUnreachableException $ex) {
             return new HostUnreachableException($ex);
-        } catch (VmErrorDestroy $ex) {
-            return new VmErrorDestroy($ex->getMessage());
+        } catch (ShutdownException $ex) {
+            return new ShutdownException($ex->getMessage());
         }
     }
 

@@ -11,8 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetConfigVMException;
 
 class SetConfigVMinNode extends GClientBase
 
@@ -44,6 +43,8 @@ class SetConfigVMinNode extends GClientBase
           return $result;
 
         }catch(\Exception $ex){
+            if ($ex->getCode()===500) throw new GetConfigVMException($ex->getMessage());
+            return throw new GetConfigVMException("Error in Config VM");
 
 
 

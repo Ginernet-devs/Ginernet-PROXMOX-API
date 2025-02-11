@@ -11,8 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetTaskStatusVMException;
 
 class GetTaskStatusVmNode extends GClientBase
 
@@ -39,9 +38,8 @@ class GetTaskStatusVmNode extends GClientBase
           return $result;
 
         }catch(\Exception $ex){
-
-
-
+            if ($ex->getCode()===500) throw new GetTaskStatusVMException($ex->getMessage());
+            return throw new GetTaskStatusVMException("Error in Task Status VM");
         }
 
         return null;

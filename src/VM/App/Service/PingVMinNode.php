@@ -11,8 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\PingVMDiskException;
 
 class PingVMinNode extends GClientBase
 
@@ -43,6 +42,8 @@ class PingVMinNode extends GClientBase
           return $result->getBody()->getContents();
 
         }catch(\Exception $ex){
+                if ($ex->getCode()===500) throw new PingVMDiskException($ex->getMessage());
+                return throw new PingVMDiskException("Error in Ping VM");
 
 
 

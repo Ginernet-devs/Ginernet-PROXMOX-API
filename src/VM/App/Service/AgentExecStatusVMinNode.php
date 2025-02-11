@@ -11,8 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentExecStatusVMException;
 
 class AgentExecStatusVMinNode extends GClientBase
 
@@ -43,9 +42,9 @@ class AgentExecStatusVMinNode extends GClientBase
           $result =  $this->Get("nodes/".$node."/qemu/".$vmid."/agent/exec-status", $params);
           return $result;
 
-        }catch(\Exception $ex){
-
-
+        }catch(\Exception $ex){ 
+            if ($ex->getCode()===500) throw new AgentExecStatusVMException($ex->getMessage());
+            return throw new AgentExecStatusVMException("Error in Agent Status VM");
 
         }
 

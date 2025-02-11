@@ -15,7 +15,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PostRequestException;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\ShutdownException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
 
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
@@ -64,9 +64,9 @@ class ShutdownVMNode extends GClientBase
 
         }catch (PostRequestException $e ) {
 
-            if ($e->getCode()===500) throw new VmErrorDestroy($e->getMessage());
+            if ($e->getCode()===500) throw new ShutdownException($e->getMessage());
 
-            throw new VmErrorDestroy("Error in create VM");
+            throw new ShutdownException("Error in Shutdown VM");
 
         }
 

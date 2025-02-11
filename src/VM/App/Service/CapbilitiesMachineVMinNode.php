@@ -11,8 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\CapbilitiesMachineException;
 
 class CapbilitiesMachineVMinNode extends GClientBase
 
@@ -43,6 +42,10 @@ class CapbilitiesMachineVMinNode extends GClientBase
           return $result;
 
         }catch(\Exception $ex){
+
+            if ($ex->getCode()===500) throw new CapbilitiesMachineException($ex->getMessage());
+
+            throw new CapbilitiesMachineException("Error in Capabilities VM");
 
 
 

@@ -25,6 +25,15 @@ use Ginernet\Proxmox\Networks\Domain\Responses\NetworksResponse;
 use Ginernet\Proxmox\Nodes\Domain\Responses\NodesResponse;
 use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentExecVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentFileWriteVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\CapbilitiesMachineException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetConfigVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetTaskStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\PingVMDiskException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\ShutdownException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorReset;
 
 class GClientTest extends  TestCase
 {
@@ -40,7 +49,12 @@ class GClientTest extends  TestCase
      //   $this->clientCluster = new GClient($_ENV['HOST_CLUSTER'], $_ENV['USERNAME_CLUSTER'], $_ENV['PASSWORD_CLUSTER'], $_ENV['REALM_CLUSTER']);
       //  $this->authCLuster = $this->clientCluster->login();
     }
-
+    public function testVersion():void
+    {
+        $result = $this->client->getVersion();
+        var_dump($result);die;
+        $this->assertInstanceOf(VersionResponse::class, $result);
+    }
 
     //// TESTING LOGIN
     public function testLoginClientOk():void
@@ -266,4 +280,129 @@ class GClientTest extends  TestCase
         $result = $this->clientCluster->getClusterStatus();
         $this->assertInstanceOf(ClusterResponse::class, $result);
     }*/
+
+    public function testcreateConfigVMOk():void{
+        $result =$this->client->createConfigVM("ns1047",101, 1, "on","directsync", "/mnt/pve/nfs-iso/gcp-images/Debian-12-x86_64-GridCP-PVE_KVM-20240610.qcow2");
+        $this->assertIsString($result);
+    }
+    public function testcreateConfigVMKo():void{
+        $result =$this->client->createConfigVM("ns10xx",101, 1, "on","directsync", "/mnt/pve/nfs-iso/gcp-images/Debian-12-x86_64-GridCP-PVE_KVM-20240610.qcow2");
+        $this->assertInstanceOf(GetConfigVMException::class, $result);
+    }
+
+    public function testAgentExecVMOk():void{
+        $result =$this->client->setAgentExecVM("ns1047",101, ['command' => ['dir']]);
+        $this->assertNotEmpty($result);
+    }
+    public function testAgentExecVMKo():void{
+        $result =$this->client->setAgentExecVM("ns1047",101, ['command' => ['dir']]);
+        $this->assertInstanceOf(AgentExecVMException::class, $result);
+    }
+
+
+    public function testAgentFileWriteVMOk():void{
+        $result =$this->client->agentFileWriteVM("ns1047",101, [
+            'content' => '[{000214A0-0000-0000-C000-000000000046}]
+            Prop3=19,0
+            [InternetShortcut]
+            IDList=
+            URL=ms-settings:regionlanguage',
+            'file' => "C:\Users\Public\Desktop\Language.url"
+                    ]);
+        $this->assertNotEmpty($result);
+    }
+    public function testAgentFileWriteVMKo():void{
+        $result =$this->client->agentFileWriteVM("ns1047",101, [
+            'content' => '[{000214A0-0000-0000-C000-000000000046}]
+            Prop3=19,0
+            [InternetShortcut]
+            IDList=
+            URL=ms-settings:regionlanguage',
+            'file' => "C:\Users\Public\Desktop\Language.url"
+                    ]);
+        $this->assertInstanceOf(AgentFileWriteVMException::class, $result);
+    }
+
+    public function testPingVMOk():void{
+        $result =$this->client->pingVM("ns1047",101);
+        $this->assertNotEmpty($result);
+    }
+    public function testPingVMKo():void{
+        $result =$this->client->pingVM("ns10xx",101);
+        $this->assertInstanceOf(PingVMDiskException::class, $result);
+    }
+
+    public function testgetTaskStatusVMOK():void{
+        $result =$this->client->getTaskStatusVM("ns1047",'101');
+        $this->assertNotEmpty($result);
+    }
+    public function testgetTaskStatusVMKO():void{
+        $result =$this->client->getTaskStatusVM("ns10xx",'101');
+        $this->assertInstanceOf(GetTaskStatusVMException::class, $result);
+    }
+
+    public function testSetConfigVMOK(): void
+    {
+        $params = ['keyboard' => 'es'];
+        $result = $this->client->setConfigVM("ns1047", 101, $params);
+        $this->assertNotEmpty($result);
+    }
+
+    public function testSetConfigVMKO(): void
+    {
+        $params = [];
+        $result = $this->client->setConfigVM("ns10xx", 101, $params);
+        $this->assertInstanceOf(GetConfigVMException::class, $result);
+    }
+
+
+    public function testGetStatusVMOK(): void
+    {
+        $result = $this->client->getStatusVM("ns1047", 101, true);
+        $this->assertNotEmpty($result);
+    }   
+
+    public function testGetStatusVMKO(): void
+    {
+        $result = $this->client->getStatusVM("ns10xx", 101, true);
+        $this->assertInstanceOf(GetStatusVMException::class, $result);
+    }  
+
+    public function testShutdownOK(): void
+    {
+        $result = $this->client->shutdown("ns1047", 101);
+        $this->assertNotEmpty($result);
+    }   
+
+    public function testShutdownKO(): void
+    {
+        $result = $this->client->shutdown("nsxxx", 101);
+        $this->assertInstanceOf(ShutdownException::class, $result);
+    }   
+
+    public function testResetOK(): void
+    {
+        $result = $this->client->reset("ns1047", 101);
+        $this->assertNotEmpty($result);
+    }   
+
+    public function testResetKO(): void
+    {
+        $result = $this->client->reset("nsxxx", 101);
+        $this->assertInstanceOf(VmErrorReset::class, $result);
+    }   
+
+    public function testGetCapabilitiesMachineOK(): void
+    {
+        $result = $this->client->getCapabilitiesMachine("ns1047");
+        $this->assertNotEmpty($result);
+    }   
+
+    public function testGetCapabilitiesMachineKO(): void
+    {
+        $result = $this->client->getCapabilitiesMachine("nsxxx");
+        $this->assertInstanceOf(CapbilitiesMachineException::class, $result);
+    }
+
+
 }

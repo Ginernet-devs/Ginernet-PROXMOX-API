@@ -11,8 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentFileWriteVMException;
 
 class SetAgentFileWriteVMinNode extends GClientBase
 
@@ -49,7 +48,9 @@ class SetAgentFileWriteVMinNode extends GClientBase
              
           return $responseArray;
 
-        }catch(\Exception $ex){
+        }catch(\Exception $ex){            
+            if ($ex->getCode()===500) throw new AgentFileWriteVMException($ex->getMessage());
+            return throw new AgentFileWriteVMException("Error in Agent File Write VM");
 
 
 

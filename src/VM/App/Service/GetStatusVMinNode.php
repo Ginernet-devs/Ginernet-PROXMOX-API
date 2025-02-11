@@ -11,8 +11,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
-
-
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetStatusVMException;
 
 class GetStatusVMinNode extends GClientBase
 
@@ -40,6 +39,8 @@ class GetStatusVMinNode extends GClientBase
           return $result;
 
         }catch(\Exception $ex){
+            if ($ex->getCode()===500) throw new GetStatusVMException($ex->getMessage());
+            return throw new GetStatusVMException("Error in Status VM");
 
 
 
