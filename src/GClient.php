@@ -11,7 +11,6 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\AuthFailedException;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\HostUnreachableException;
-use Ginernet\Proxmox\Commons\Domain\Models\DiskTypePVE;
 use Ginernet\Proxmox\Cpus\App\Service\GetCpuFromNode;
 use Ginernet\Proxmox\Cpus\Domain\Exceptions\CpuNotFound;
 use Ginernet\Proxmox\Cpus\Domain\Reponses\CpusResponse;
@@ -26,31 +25,42 @@ use Ginernet\Proxmox\Proxmox\Version\Domain\Responses\VersionResponse;
 use Ginernet\Proxmox\Storages\App\Service\GetStoragesFromNode;
 use Ginernet\Proxmox\Storages\Domain\Exceptions\StoragesNotFound;
 use Ginernet\Proxmox\Storages\Domain\Responses\StoragesResponse;
+use Ginernet\Proxmox\VM\App\Service\AgentExecStatusVMinNode;
+use Ginernet\Proxmox\VM\App\Service\CapbilitiesMachineVMinNode;
 use Ginernet\Proxmox\VM\App\Service\CreateConfigVMinNode;
-use Ginernet\Proxmox\VM\App\Service\CreateVMinNode;
+use Ginernet\Proxmox\VM\App\Service\CreateVm;
 use Ginernet\Proxmox\VM\App\Service\CreateVncProxy;
 use Ginernet\Proxmox\VM\App\Service\CreateVncWebSocket;
+
 use Ginernet\Proxmox\VM\App\Service\DeleteVMinNode;
-use Ginernet\Proxmox\VM\App\Service\GetConfigVMinNode;
+use Ginernet\Proxmox\VM\App\Service\GetStatusVMinNode;
+use Ginernet\Proxmox\VM\App\Service\GetTaskStatusVmNode;
+use Ginernet\Proxmox\VM\App\Service\PingVMinNode;
+use Ginernet\Proxmox\VM\App\Service\ResetVMNode;
 use Ginernet\Proxmox\VM\App\Service\ResizeVMDisk;
+use Ginernet\Proxmox\VM\App\Service\SetAgentExecVMinNode;
+use Ginernet\Proxmox\VM\App\Service\SetAgentFileWriteVMinNode;
+use Ginernet\Proxmox\VM\App\Service\SetConfigVMinNode;
+use Ginernet\Proxmox\VM\App\Service\ShutdownVMNode;
 use Ginernet\Proxmox\VM\App\Service\StartVMinNode;
 use Ginernet\Proxmox\VM\App\Service\StopVMinNode;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentExecStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentExecVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\AgentFileWriteVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\CapbilitiesMachineException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetConfigVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetTaskStatusVMException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\PingVMDiskException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
+use Ginernet\Proxmox\VM\Domain\Exceptions\ShutdownException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorCreate;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorDestroy;
+use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorReset;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStart;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VmErrorStop;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VncProxyError;
 use Ginernet\Proxmox\VM\Domain\Exceptions\VncWebSocketError;
-use Ginernet\Proxmox\VM\Domain\Model\CpuModel;
-use Ginernet\Proxmox\VM\Domain\Model\EfiModel;
-use Ginernet\Proxmox\VM\Domain\Model\IpModel;
-use Ginernet\Proxmox\VM\Domain\Model\NetModel;
-use Ginernet\Proxmox\VM\Domain\Model\Storage\IdeModel;
-use Ginernet\Proxmox\VM\Domain\Model\storage\ScsiModel;
-use Ginernet\Proxmox\VM\Domain\Model\storage\SataModel;
-use Ginernet\Proxmox\VM\Domain\Model\storage\VirtioModel;
-use Ginernet\Proxmox\VM\Domain\Model\UserModel;
 use Ginernet\Proxmox\VM\Domain\Responses\VmsResponse;
 use Ginernet\Proxmox\VM\Domain\Responses\VncResponse;
 
@@ -217,31 +227,49 @@ class GClient
      * @param string|null $vmCpuType
      * @param int|null $vmMemory
      * @param int|null $vmMemoryBallon
+     * @param string|null $vmOsType
+     * @param string|null $vmBios
+     * @param string|null $vmMachinePc
+     * @param string|null $vmEfiStorage
+     * @param int|null $vmEfiKey
+     * @param string|null $efidisckNvme
+     * @param string|null $efidisckEnrroled
+     * @param string|null $tpmstateNvme
+     * @param string|null $tpmstateVersion
+     * @param string $soBuild
      * @return VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
      */
 
-     public function createVM(string  $nodeName, int $vmId, ?int $vmCpuCores, ?string $vmName, ?int $vmNetId,
-                              ?string $vmNetModel, ?string $vmNetBridge, ?int $vmNetFirewall, ?bool $vmOnBoot, ?string $vmScsiHw,
-                              ?string $vmDiskType, ?int    $vmDiskId, ?string $vmDiskStorage, string $vmDiskDiscard, ?string $vmDiskCache, ?string $vmDiskImportFrom, ?string $vmTags,
-                              ?int    $vmCloudInitIdeId, ?string $vmCloudInitStorage, ?string $vmBootOrder, ?int $vmAgent,
-                              ?int    $vmNetNetId, ?string $vmNetIp, ?string $vmNetGw, ?string $vmOsUserName, ?string $vmOsPassword,
-                              ?string $vmCpuType, ?int $vmMemory, ?int $vmMemoryBallon,?string $vmOsType,?string $vmBios,?string $vmMachinePc,
-                              ?string $vmEfiStorage, ?int $vmEfiKey):VmsResponse|AuthFailedException|HostUnreachableException|VmErrorCreate
+
+
+     public function createVM(
+        string  $nodeName, int $vmId, ?int $vmCpuCores, ?string $vmName, ?int $vmNetId,
+        ?string $vmNetModel, ?string $vmNetBridge, ?int $vmNetFirewall, ?bool $vmOnBoot,
+        ?string $vmScsiHw, ?string $vmDiskType, ?int    $vmDiskId, ?string $vmDiskStorage,
+        ?string $vmDiskDiscard, ?string $vmDiskCache, ?string $vmDiskImportFrom, ?string $vmTags,
+        ?int    $vmCloudInitIdeId, ?string $vmCloudInitStorage, ?string $vmBootOrder, ?int $vmAgent,
+        ?int    $vmNetNetId, ?string $vmNetIp, ?string $vmNetGw, ?string $vmOsUserName,
+        ?string $vmOsPassword, ?string $vmCpuType, ?int $vmMemory = null, ?int $vmMemoryBallon = null,
+        ?string $vmOsType = null,?string $vmBios = null,?string $vmMachinePc = null,
+        ?string $vmEfiStorage = null, ?int $vmEfiKey = null,
+        ?string $efidisckNvme = null, ?string $efidisckEnrroled = null,
+        ?string $tpmstateNvme = null, ?string $tpmstateVersion = null,
+        ?string $soBuild = 'Deb12'
+      )
     {
         try {
-            $net= new NetModel($vmNetId, $vmNetModel, $vmNetBridge, $vmNetFirewall);
-            $scsi= ($vmDiskType == DiskTypePVE::SCSI->value)? new ScsiModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
-            $ide= ($vmDiskType == DiskTypePVE::IDE->value)? new IdeModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
-            $sata= ($vmDiskType == DiskTypePVE::SATA->value)? new SataModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
-            $virtio= ($vmDiskType == DiskTypePVE::VIRTIO->value)? new VirtioModel($vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, $vmDiskImportFrom ):null;
-            $vmNetIp = new IpModel($vmNetNetId,$vmNetIp,$vmNetGw);
-            $vm = new CreateVMinNode($this->connection, $this->cookiesPVE);
-            $user= new UserModel($vmOsUserName, $vmOsPassword);
-            $cpu = new CpuModel($vmCpuType, $vmCpuCores, $vmMemory, $vmMemoryBallon);
-            $efi= new EfiModel($vmEfiStorage, $vmEfiKey);
-            $result = $vm($nodeName, $vmId, $vmCpuCores, $vmName, $net, $vmOnBoot, $vmScsiHw, $scsi,$ide,$sata,$virtio, $vmTags, $vmBootOrder,$vmAgent, $vmNetIp, $user,$cpu, $vmOsType, $vmBios, $vmMachinePc, $efi);
 
+            $vm = new CreateVm($this->connection, $this->cookiesPVE);
 
+            $result = $vm(
+                            $nodeName, $vmId, $vmCpuCores, $vmName, $vmNetId, $vmNetModel, $vmNetBridge, $vmNetFirewall,
+                            $vmOnBoot, $vmScsiHw, $vmDiskType, $vmDiskId, $vmDiskStorage, $vmDiskDiscard, $vmDiskCache, 
+                            $vmDiskImportFrom, $vmTags, $vmCloudInitIdeId, $vmCloudInitStorage, $vmBootOrder, $vmAgent, 
+                            $vmNetNetId, $vmNetIp, $vmNetGw, $vmOsUserName, $vmOsPassword, $vmCpuType, $vmMemory, 
+                            $vmMemoryBallon, $vmOsType, $vmBios, $vmMachinePc, $vmEfiStorage, $vmEfiKey, $efidisckNvme, 
+                            $efidisckEnrroled, $tpmstateNvme, $tpmstateVersion, $soBuild
+                         );
+           
             return $result;
         }catch (AuthFailedException $ex){
             return new AuthFailedException($ex);
@@ -261,7 +289,7 @@ class GClient
      * @param string|null $import
      * @return string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
      */
-    public function createConfigVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
+     public function createConfigVM(string $node, int $vmid, ?int $index, ?string $discard, ?string $cache, ?string $import): string|AuthFailedException|HostUnreachableException|ResizeVMDiskException
     {
         try{
             if (!isset($this->cookiesPVE)){
@@ -273,8 +301,82 @@ class GClient
             return new AuthFailedException($ex);
         }catch(HostUnreachableException $ex) {
             return new HostUnreachableException($ex);
-        }catch (ResizeVMDiskException $ex){
-            return new ResizeVMDiskException($ex->getMessage());
+        }catch (GetConfigVMException $ex){
+            return new GetConfigVMException($ex->getMessage());
+        }
+    }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @param array $command
+     * @return array|AuthFailedException|null
+     */
+    public function setAgentExecVM(string $node, int $vmid, array $command = [])
+    {
+        try{
+
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+
+            $getConfigVM =new SetAgentExecVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmid, $command);
+
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch (AgentExecVMException $ex){
+            return new AgentExecVMException($ex->getMessage());
+        }
+
+    }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @param array $command
+     * @return array|AuthFailedException|null
+     */
+    public function agentFileWriteVM(string $node, int $vmid, array $command = [])
+    {
+        try{
+
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+
+            $getConfigVM =new SetAgentFileWriteVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmid, $command);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch (AgentFileWriteVMException $ex){
+            return new AgentFileWriteVMException($ex->getMessage());
+        }
+
+    }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @param array $command
+     * @return array|AuthFailedException|null
+     */
+
+    public function agentExecStatusVM(string $node, int $vmid, string $pid)
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $status =new AgentExecStatusVMinNode($this->connection, $this->cookiesPVE);
+            return  $status($node, $vmid, $pid);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch (AgentExecStatusVMException $ex){
+            return new AgentExecStatusVMException($ex->getMessage());
         }
     }
 
@@ -283,17 +385,88 @@ class GClient
      * @param int $vmid
      * @return array|AuthFailedException|null
      */
-    public function getConfigVM(string $node, int $vmid)
+    public function pingVM(string $node, int $vmid)
     {
         try{
             if (!isset($this->cookiesPVE)){
                 return new AuthFailedException("Auth failed!!!");
             };
-            $getConfigVM =new GetConfigVMinNode($this->connection, $this->cookiesPVE);
-            return  $getConfigVM($node, $vmid);
+
+            $pingVM =new PingVMinNode($this->connection, $this->cookiesPVE);
+
+            return  $pingVM($node, $vmid);
+
+        }catch(AuthFailedException $ex) {
+            return new AuthFailedException($ex);
+        }catch (PingVMDiskException $ex){
+            return new PingVMDiskException($ex->getMessage());
+        }
+    }
+
+    /**
+     * @param string $upid
+     * @return array|AuthFailedException|null
+     */
+
+    public function getTaskStatusVM(string $node, string $upid)
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+
+            $taskStatusVM =new GetTaskStatusVmNode($this->connection, $this->cookiesPVE);
+            return  $taskStatusVM($node, $upid);
         }catch(AuthFailedException $ex)
         {
             return new AuthFailedException($ex);
+        }catch (GetTaskStatusVMException $ex){
+            return new GetTaskStatusVMException($ex->getMessage());
+        }
+    }
+
+
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @return array|AuthFailedException|null
+     */
+    public function setConfigVM(string $node, int $vmid, array $params = [])
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $getConfigVM =new SetConfigVMinNode($this->connection, $this->cookiesPVE);
+            return  $getConfigVM($node, $vmid, $params);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        } catch (GetConfigVMException $ex){
+            return new GetConfigVMException($ex->getMessage());
+        }
+    }
+
+    /**
+     * @param string $node
+     * @param int $vmid
+     * @return array|AuthFailedException|null
+     */
+    public function getStatusVM(string $node, int $vmid, bool $current = false)
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+
+            $getStatusVM =new GetStatusVMinNode($this->connection, $this->cookiesPVE);
+            return  $getStatusVM($node, $vmid, $current);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        } catch (GetStatusVMException $ex){
+            return new GetStatusVMException($ex->getMessage());
         }
     }
 
@@ -302,7 +475,7 @@ class GClient
      * @param int $vmid
      * @return string|AuthFailedException|HostUnreachableException|VmErrorStart
      */
-    public function startVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorStart
+     public function startVM(string $node, int $vmId):string|AuthFailedException|HostUnreachableException|VmErrorStart
     {
         try{
             if (!isset($this->cookiesPVE)){
@@ -369,6 +542,57 @@ class GClient
 
     /**
      * @param string $node
+     * @param int $vmId
+     * @return string|AuthFailedException|HostUnreachableException|VmErrorDestroy
+     */
+    public function shutdown(string $node, int $vmId)
+    {
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+            $shutdown =new ShutdownVMNode($this->connection, $this->cookiesPVE);
+
+            return  $shutdown($node, $vmId);
+
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        } catch (ShutdownException $ex) {
+            return new ShutdownException($ex->getMessage());
+        }
+    }
+
+    /**
+     * @param string $node
+     * @param int $vmId
+     * @return string|AuthFailedException|HostUnreachableException|VmErrorReset
+     */
+    public function reset(string $node, int $vmId)
+    {
+
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+
+            $reset =new ResetVMNode($this->connection, $this->cookiesPVE);
+            return  $reset($node, $vmId);
+        }catch(AuthFailedException $ex)
+        {
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex) {
+            return new HostUnreachableException($ex);
+        } catch (VmErrorReset $ex) {
+            return new VmErrorReset($ex->getMessage());
+        }
+    }
+
+
+    /**
+     * @param string $node
      * @param int $vmid
      * @param string|null $disk
      * @param string|null $size
@@ -394,7 +618,8 @@ class GClient
     /**
      * @return VersionResponse|AuthFailedException|HostUnreachableException|VersionError
      */
-    public function getVersion():VersionResponse|AuthFailedException|HostUnreachableException|VersionError{
+    public function getVersion():VersionResponse|AuthFailedException|HostUnreachableException|VersionError
+    {
 
         try{
             if (!isset($this->cookiesPVE)){
@@ -408,10 +633,36 @@ class GClient
             return new HostUnreachableException($ex);
         }catch(VersionError $ex){
             return new VersionError($ex->getMessage());
+
         }
-
-
     }
+    
+
+
+
+    /**
+     * @return mixed|AuthFailedException|HostUnreachableException|CapbilitiesMachineException
+     */
+    public function getCapabilitiesMachine(string $node)
+    {
+
+        try{
+            if (!isset($this->cookiesPVE)){
+                return new AuthFailedException("Auth failed!!!");
+            };
+
+            $typeMachine = new CapbilitiesMachineVMinNode($this->connection,$this->cookiesPVE);
+            return  $typeMachine($node);
+
+        }catch(AuthFailedException $ex){
+            return new AuthFailedException($ex);
+        }catch(HostUnreachableException $ex){
+            return new HostUnreachableException($ex);
+        }catch(CapbilitiesMachineException $ex){
+            return new CapbilitiesMachineException($ex->getMessage());
+        }
+    }
+
 
     /**
      * @return ClusterResponse|AuthFailedException|HostUnreachableException|ClusterNotFound
@@ -424,6 +675,7 @@ class GClient
             };
             $status = new GetClusterStatus($this->connection, $this->cookiesPVE);
             return $status();
+
         }catch (AuthFailedException $ex){
             return new AuthFailedException($ex);
         } catch (HostUnreachableException $ex) {
@@ -432,7 +684,6 @@ class GClient
         {
             return new ClusterNotFound();
         }
-
     }
 
     /**
@@ -440,7 +691,8 @@ class GClient
      * @param int $vmid
      * @return VncResponse|AuthFailedException|VncProxyError
      */
-    public function createVncProxy(string $node, int $vmid):VncResponse|AuthFailedException|VncProxyError{
+    public function createVncProxy(string $node, int $vmid):VncResponse|AuthFailedException|VncProxyError
+    {
         try{
             if(!isset($this->cookiesPVE)){
                 return new AuthFailedException('Auth failed !!!');
@@ -450,20 +702,21 @@ class GClient
         }catch(VncProxyError $ex){
             return new VncProxyError($ex->getMessage());
         }
-      }
+    }
 
 
-     public function createVncWebSocket(string $node, int $vmid, int $port, string $vncticket){
-         try {
-             if (!isset($this->cookiesPVE)) {
-                 return new AuthFailedException('Auth failed !!!');
-             };
-             $vncWebSocket = new CreateVncWebSocket($this->connection, $this->cookiesPVE);
-             $result = $vncWebSocket($node, $vmid, $port, $vncticket);
-             return $result;
+    public function createVncWebSocket(string $node, int $vmid, int $port, string $vncticket)
+    {
+        try {
+            if (!isset($this->cookiesPVE)) {
+                return new AuthFailedException('Auth failed !!!');
+            };
+            $vncWebSocket = new CreateVncWebSocket($this->connection, $this->cookiesPVE);
+            $result = $vncWebSocket($node, $vmid, $port, $vncticket);
+            return $result;
 
-         }catch(VncWebSocketError $ex){
-             return new VncWebSocketError($ex->getMessage());
-         }
-     }
+        }catch(VncWebSocketError $ex){
+            return new VncWebSocketError($ex->getMessage());
+        }
+    }
 }

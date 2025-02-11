@@ -3,4 +3,5 @@
 .env.*
 /tests/.env.test
 composer.lock
-
+.vscode/
+.gitignore

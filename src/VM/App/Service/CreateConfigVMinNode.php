@@ -6,6 +6,7 @@ use Ginernet\Proxmox\Commons\Domain\Entities\Connection;
 use Ginernet\Proxmox\Commons\Domain\Entities\CookiesPVE;
 use Ginernet\Proxmox\Commons\Domain\Exceptions\PutRequestException;
 use Ginernet\Proxmox\Commons\infrastructure\GClientBase;
+use Ginernet\Proxmox\VM\Domain\Exceptions\GetConfigVMException;
 use Ginernet\Proxmox\VM\Domain\Exceptions\ResizeVMDiskException;
 
 final class CreateConfigVMinNode extends  GClientBase
@@ -25,14 +26,14 @@ final class CreateConfigVMinNode extends  GClientBase
                // 'scsi'.$index =>'import-from='.$import
             ];
             $result = $this->Post("nodes/".$node."/qemu/".$vmid."/config", $body);
-            if(is_null($result)) return throw new ResizeVMDiskException("Error in config VM");
+            if(is_null($result)) return throw new GetConfigVMException("Error in config VM");
             $getContent = $result->getBody()->getContents();
             $getCode = $result->getStatusCode();
-            if($getCode != 'CODE200') throw  new ResizeVMDiskException($getContent);
+            if($getCode != 'CODE200') throw  new GetConfigVMException($getContent);
             return $getContent;
         }catch (PutRequestException $e ){
-            if ($e->getCode()===500) throw new ResizeVMDiskException($e->getMessage());
-            return throw new ResizeVMDiskException("Error in create VM");
+            if ($e->getCode()===500) throw new GetConfigVMException($e->getMessage());
+            return throw new GetConfigVMException("Error in create VM");
         }
     }
 
